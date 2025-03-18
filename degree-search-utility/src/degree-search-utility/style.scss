@@ -1,0 +1,406 @@
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+ @use '~bootstrap/scss/bootstrap';
+
+ .areasContainer {
+    // width: 100vw;
+    padding-bottom: 3rem;
+  }
+  
+  @media (min-width: 800px) {
+    .areasContainer {
+      flex-direction: row;
+      margin: 0 auto;
+    }
+  }
+  
+  .resultsSection {
+    // padding: 1rem 0.5rem 3rem 0.5rem;
+    position: relative;
+    margin: 0 0 1.5rem 0;
+    justify-items: start;
+    align-items: start;
+  }
+  
+  .resultsSection:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 1px solid #FF8200; /* Substitute for $utorange */
+    width: 100vw;
+  }
+  
+  @media screen and (min-width: 940px) {
+    .resultsSection {
+      padding: 1rem 2rem 3rem 2rem;
+    }
+  
+    .resultsSection:before {
+      content: none;
+    }
+  }
+  
+  @media screen and (min-width: 1200px) {
+    .resultsSection {
+      padding: 5rem 0;
+      max-width: 1520px;
+      margin: 0 auto 3rem auto;
+    }
+  }
+  
+  .resultsSectionMessage {
+    padding: 0 2rem;
+    position: relative;
+    margin: 0 0 1.5rem 0;
+    justify-items: start;
+    align-items: start;
+  }
+  
+  @media screen and (min-width: 940px) {
+    .resultsSectionMessage {
+      padding: 1rem 2rem 3rem 2rem;
+    }
+  }
+  
+  @media screen and (min-width: 1200px) {
+    .resultsSectionMessage {
+      padding: 5rem 2rem 3rem 2rem;
+      max-width: 1520px;
+      margin: 0 auto 3rem auto;
+    }
+  }
+  
+  .resultsSectionMessage h3 {
+    margin-top: 0;
+  }
+  
+  .onlineTag {
+    background-color: rgba(255, 130, 0, 0.2);
+    margin-top: 0.2rem;
+    padding: 0.1rem 0.3rem;
+    text-transform: uppercase;
+    font-size: calc(14px * 0.9); /* Replace $font-size-sm */
+    font-weight: bold;
+    letter-spacing: 0.1rem;
+    display: block;
+    width: fit-content;
+    text-decoration: none;
+    color: #4B4B4B; /* Substitute for $utsmokey */
+    border-radius: 0.2rem;
+  }
+  
+  .programGrid {
+    grid-template-columns: 1fr;
+    display: grid;
+    padding: 0;
+    align-items: start;
+    width: 100%;
+  }
+  
+  .programGrid .programEntry:nth-child(even) {
+    background-color: #fbfbfb;
+  }
+  
+  @media screen and (min-width: 940px) {
+    .programGrid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, auto));
+    }
+  }
+  
+  .labelContainer {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-row-gap: 1rem;
+    padding: 1rem 2rem;
+    letter-spacing: 0.1rem;
+    justify-items: start;
+    align-items: start;
+    border-bottom: 1px solid #FF8200;
+    margin: 0;
+  }
+
+  @media screen and (max-width: 940px) {
+    .labelContainer {
+        display: none;
+    }
+  }
+
+  h2.programLabel {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: .875rem;
+    margin-bottom: 0;
+  }
+
+  .toolTip {
+    display: inline-block;
+    position: relative;
+    padding: 0;
+    margin: 0;
+    line-height: 0;
+    letter-spacing: normal;
+  }
+  
+  .toolTip:after {
+    display: inline-block;
+    margin-left: 0.25rem;
+    margin-right: 0.73rem;
+    width: auto;
+    padding: 0;
+    line-height: 0;
+    content: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 19 19' fill='%234b4b4b' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9.2,0C4.12,0,0,4.12,0,9.2s4.12,9.2,9.2,9.2,9.2-4.12,9.2-9.2S14.28,0,9.2,0ZM10.31,14.19c0,.2-.16.36-.36.36h-1.51c-.2,0-.36-.16-.36-.36v-7.14c0-.2.16-.36.36-.36h1.51c.2,0,.36.16,.36.36v7.14ZM10.37,5.47c0,.2-.16.36-.36.36h-1.63c-.2,0-.36-.16-.36-.36v-1.27c0-.2.16-.36.36-.36h1.63c.2,0,.36.16,.36.36v1.27Z' /%3E%3C/svg%3E");
+  }
+  
+  .toolTip:hover .messageConcentratation,
+  .toolTip:focus .messageConcentratation {
+    display: block;
+    z-index: 10;
+    position: absolute;
+    bottom: 2rem;
+    left: -120px;
+    text-transform: none !important;
+    background-color: #fbfbfb;
+    border: 1px solid #dadada;
+    padding: 1rem;
+    width: 240px;
+    color: #4b4b4b; /* Replace $utsmokeytext */
+  }
+  
+  .toolTip:hover .messageConcentratation:before,
+  .toolTip:focus .messageConcentratation:before {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    z-index: 8 !important;
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #dadada;
+  }
+  
+  .toolTip:hover .messageConcentratation:after,
+  .toolTip:focus .messageConcentratation:after {
+    position: absolute;
+    bottom: -9px;
+    left: 50%;
+    z-index: 11;
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #fbfbfb;
+  }
+  
+  .toolTip:hover .messageConcentratation p,
+  .toolTip:focus .messageConcentratation p {
+    font-weight: normal; /* Replace $font-weight-normal */
+    font-size: 0.92rem; 
+    line-height: 1.26; /* Replace calc($line-height-base * 0.9) with actual value */
+    margin: 0;
+    padding: 0;
+  }
+  
+  .messageConcentratation {
+    display: none;
+  }
+  
+  @media screen and (min-width: 940px) {
+    .labelContainer {
+      grid-column: 1 / 4;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-column-gap: 3rem;
+    }
+  }
+  
+  .programEntry {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-row-gap: 1rem;
+      align-items: start;
+      border-bottom: 1px solid #dadada;
+      justify-items: start;
+      margin: 0;
+      padding: 2rem;
+  }
+
+  
+  @media screen and (min-width: 940px) {
+    .programEntry {
+      grid-column: 1 / 4;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-column-gap: 3rem;
+      padding: 3rem 2rem;
+      margin: 0;
+    }
+  }
+  
+  .programEntry > .programName p {
+    margin: 0;
+    line-height: clamp(1.3rem, 3.5vw, 1.63rem);
+    font-size: 1rem; /* Substitute for $h5-font-size */
+    font-weight: bold;
+    justify-self: stretch;
+  }
+  
+  @media screen and (min-width: 940px) {
+    .programEntry > .programName p {
+      grid-column: 1 / 2;
+    }
+  }
+
+  .concentrationList, .areaList, .collegeList {
+    font-size: 1rem;
+    justify-self: stretch;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0;
+    /* margin: .75rem 0 0 1rem; */
+  }
+
+  @media screen and (max-width: 940px) {
+    .concentrationList {
+      margin: .75rem 0 0 1rem;
+    }
+    .programEntry>.concentrationList:not(.noConcentrations):before {
+        content: "concentrations";
+        font-size: .7875rem;
+        padding: 0;
+        margin: 0 0 -.3rem;
+        color: #4b4b4b;
+        border-bottom: 1px solid #ff8200;
+    }
+  }
+
+.degreeList {
+    justify-self: stretch;
+    list-style: none;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    margin: 0 0 0 .1rem;
+    padding: 0;
+    font-weight: 800;
+    font-size: .875rem;
+    font-size: .84875rem;
+}
+
+.degreeList li, .concentrationList li, .areaList li, .collegeList li {
+  margin-left: 0;
+}
+
+.searchNavContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  @media screen and (max-width: 940px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.searchNavFilterContainer {
+  display: flex;
+  align-items: center;
+  @media screen and (max-width: 940px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+#filters-form {
+  @media screen and (min-width: 1200px) {
+    max-width: 1520px;
+    margin: 0px auto;
+    padding: 0 20px;
+  }
+}
+
+input#program-search {
+  padding: 8px 20px;
+  @media screen and (min-width: 1500px) {
+    width:350px;
+  }
+}
+
+.select {
+  @media screen and (min-width: 1500px) {
+    margin-left: 10px;
+    width:300px;
+  }
+}
+
+.form-switch {
+  margin-left: 10px;
+}
+
+/* Default switch styles */
+.form-check-input {
+  width: 40px;
+  height: 20px;
+  background-color: #f6f6f6; /* Default background */
+  border: 1px solid #949494; /* Default border */
+  transition: background-color 0.3s, border-color 0.3s;
+  // Switch ON style
+  &:checked {
+    background-color: #2171c2;
+    border-color: #2171c2; 
+  }
+}
+
+#filterChips {
+  padding: 0 20px;
+  max-width: 1520px;
+  margin: 10px auto 0;
+  min-height: 30px;
+}
+.filterChip {
+  background: #4b4b4b;
+  display: inline;
+  color: #fff;
+  border-radius: 20px;
+  padding: 5px 7px 6px 11px;
+  font-size: 0.95rem;
+  margin-right:5px;
+
+  span {
+    background: #fff;
+    color: #4b4b4b;
+    padding: 0 6px 2px;
+    border-radius: 50px;
+    margin-left: 5px;
+    font-size: 0.8rem;
+    vertical-align: text-bottom;
+  }
+
+  &:hover {
+    background: #616161;
+    cursor: pointer;
+
+    span {
+      color: #000;
+    }
+  }
+}
+
+#no-results {
+  grid-column: 1/4;
+  text-align: center;
+  padding: 85px;
+  background: #f6f6f6;
+  h2 {
+    font-weight: 900;
+  }
+}

@@ -1,0 +1,25 @@
+{
+	"name": "degree-search-utility",
+	"version": "0.1.0",
+	"description": "Add, edit and display a searchable list of degrees",
+	"author": "UT OCM",
+	"license": "GPL-2.0-or-later",
+	"main": "build/index.js",
+	"scripts": {
+		"build": "wp-scripts build --webpack-copy-php",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"start": "wp-scripts start --webpack-copy-php"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.10.0"
+	},
+	"dependencies": {
+		"@wordpress/api-fetch": "^7.18.0",
+		"bootstrap": "^5.3.3",
+		"react-bootstrap": "^2.10.9"
+	}
+}
