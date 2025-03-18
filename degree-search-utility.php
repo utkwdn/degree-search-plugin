@@ -31,6 +31,8 @@ require_once plugin_dir_path( __FILE__ ) . 'import-settings.php';
  */
 function degree_search_utility_degree_search_utility_block_init() {
 	register_block_type( __DIR__ . '/build/degree-search-utility' );
+	register_block_type( __DIR__ . '/build/search-widget' );
+	
 }
 add_action( 'init', 'degree_search_utility_degree_search_utility_block_init' );
 
