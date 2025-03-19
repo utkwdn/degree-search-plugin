@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import Placeholder from 'react-bootstrap/Placeholder';
 import Form from 'react-bootstrap/Form';
-import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 
 export default function View() {
     const [programs, setPrograms] = useState([]);
@@ -25,7 +24,6 @@ export default function View() {
     const [onlineFilter, setOnlineFilter] = useState(new URLSearchParams(window.location.search).get('online') || '');
     const [areaMap, setAreaMap] = useState([]);
     const [collegeMap, setCollegeMap] = useState([]);
-    
 
     const fetchPrograms = (page = 1, append = false, signal) => {
         setIsLoading(page === 1);
@@ -242,39 +240,57 @@ export default function View() {
         <section className="areasContainer alignfull" id="filters">
             <div id="filters-form">
                 <section className="searchNavContainer">
-                    <input aria-label="Program Search" id="program-search" name="search" type="search" value={searchTerm} onChange={(e) => handleFilterChange('search', e.target.value, setSearchTerm)} placeholder="Find a program" />
-                        <div className="select">
-                            <select name="degree-type" className="dropdown" id="degree-type" aria-label="Degree Type" onChange={(e) => handleFilterChange('degree_type', e.target.value, setDegreeTypeFilter)}>
-                                <option value="">Degree type</option>
-                                <option aria-label="option" value="Undergraduate" selected={degreeTypeFilter === 'Undergraduate' ? true : false}>Undergraduate</option>
-                                <option aria-label="option" value="Graduate" selected={degreeTypeFilter === 'Graduate' ? true : false}>Graduate</option>
-                                <option aria-label="option" value="Undergraduate Certificate" selected={degreeTypeFilter === 'Undergraduate Certificate' ? true : false}>Undergraduate Certificate</option>
-                                <option aria-label="option" value="Graduate Certificate" selected={degreeTypeFilter === 'Graduate Certificate' ? true : false}>Graduate Certificate</option>
-                            </select>
+                    <div className="filters">
+                        <div className="filter">
+                            <div class="form-floating">
+                                <input className='form-control' aria-label="Program Search" id="program-search" name="search" type="search" value={searchTerm} onChange={(e) => handleFilterChange('search', e.target.value, setSearchTerm)} placeholder="Find a program" />
+                                <label for="program-search">Find a Program</label>
+                            </div>
                         </div>
-                        <div className="select">
-                            <select name="area" className="dropdown" id="area-of-study" aria-label="Area of Study" onChange={(e) => handleFilterChange('area', e.target.value, setAreaFilter)}>
-                                <option value="">Area of study</option>
-                                {areaMap.map((area) => (
-                                    <option key={area.id} aria-label="option" value={area.id} selected={areaFilter == area.id ? true : false}>{area.name}</option>
-                                ))}
-                            </select>
+                        <div className="filter">
+                            <div class="form-floating">
+                                <select name="degree-type" className="form-select" id="degree-type" aria-label="Degree Type" onChange={(e) => handleFilterChange('degree_type', e.target.value, setDegreeTypeFilter)}>
+                                    <option value="">Degree type</option>
+                                    <option aria-label="option" value="Undergraduate" selected={degreeTypeFilter === 'Undergraduate' ? true : false}>Undergraduate</option>
+                                    <option aria-label="option" value="Graduate" selected={degreeTypeFilter === 'Graduate' ? true : false}>Graduate</option>
+                                    <option aria-label="option" value="Undergraduate Certificate" selected={degreeTypeFilter === 'Undergraduate Certificate' ? true : false}>Undergraduate Certificate</option>
+                                    <option aria-label="option" value="Graduate Certificate" selected={degreeTypeFilter === 'Graduate Certificate' ? true : false}>Graduate Certificate</option>
+                                </select>
+                                <label for="degree-type">Degree Type</label>
+                            </div>
                         </div>
-                        <div className="select">
-                            <select name="college" className="dropdown" id="college" aria-label="College" onChange={(e) => handleFilterChange('college', e.target.value, setCollegeFilter)}>
-                                <option value="">College</option>
-                                {collegeMap.map((college) => (
-                                    <option key={college.id} aria-label="option" value={college.id} selected={collegeFilter == college.id ? true : false}>{college.name}</option>
-                                ))}
-                            </select>
+                        <div className="filter">
+                            <div class="form-floating">
+                                <select name="area" className="form-select" id="area-of-study" aria-label="Area of Study" onChange={(e) => handleFilterChange('area', e.target.value, setAreaFilter)}>
+                                    <option value="">Area of study</option>
+                                    {areaMap.map((area) => (
+                                        <option key={area.id} aria-label="option" value={area.id} selected={areaFilter == area.id ? true : false}>{area.name}</option>
+                                    ))}
+                                </select>
+                                <label for="area-of-study">Area of Study</label>
+                            </div>
                         </div>
-                        <Form.Check
-                            type="switch"
-                            id="custom-switch"
-                            label="Online"
-                            checked={onlineFilter === 'true'} // Ensure it reflects the current state
-                            onChange={() => handleFilterChange('online', onlineFilter ? '' : 'true', setOnlineFilter)} 
-                        />
+                        <div className="filter">
+                            <div class="form-floating">
+                                <select name="college" className="form-select" id="college" aria-label="College" onChange={(e) => handleFilterChange('college', e.target.value, setCollegeFilter)}>
+                                    <option value="">College</option>
+                                    {collegeMap.map((college) => (
+                                        <option key={college.id} aria-label="option" value={college.id} selected={collegeFilter == college.id ? true : false}>{college.name}</option>
+                                    ))}
+                                </select>
+                                <label for="college">College</label>
+                            </div>
+                        </div>
+                        <div className="filter">
+                            <Form.Check
+                                type="switch"
+                                id="custom-switch"
+                                label="Online"
+                                checked={onlineFilter === 'true'} // Ensure it reflects the current state
+                                onChange={() => handleFilterChange('online', onlineFilter ? '' : 'true', setOnlineFilter)} 
+                            />
+                        </div>
+                    </div>
                     <section className="filtersSection"></section>
                 </section>
             </div>
