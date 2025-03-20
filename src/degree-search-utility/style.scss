@@ -52,12 +52,43 @@ label {
   gap: 16px;
 }
 
-@media (min-width: 600px) {
+@media (min-width: 960px) {
   .programs-filters-fields {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr) auto;
     align-items: center;
   }
 }
+
+// WIP
+// @media (min-width: 780px) {
+//   .programs-filters-fields {
+//     align-items: center;
+//   }
+
+//   .programs-filters-field {
+//     &:first-child {
+//       grid-column: span 5;
+//     }
+//   }
+// }
+
+// @media (min-width: 960px) {
+//   .programs-filters-fields {
+//     grid-template-columns: repeat(3, 1fr);
+//   }
+// }
+
+// @media (min-width: 1170px) {
+//   .programs-filters-fields {
+//     grid-template-columns: repeat(4, 1fr) auto;
+//   }
+
+//   .programs-filters-field {
+//     &:first-child {
+//       grid-column: inherit;
+//     }
+//   }
+// }
 
 .programs-filters-results {
   position: relative;
@@ -321,7 +352,7 @@ h2.programLabel {
 }
 
 .programs-container {
-  @media screen and (min-width: 1169px) {
+  @media screen and (min-width: 1170px) {
     // max-width: var(--wp--style--global--wide-size);
     margin: 0px auto;
     // padding: 0 20px;
