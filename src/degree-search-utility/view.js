@@ -241,121 +241,124 @@ export default function View() {
             <div className="wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
             <section className="programs-container wp-block-group alignfull has-global-padding is-layout-constrained wp-block-group-is-layout-constrained">
                 <div className="programs-filters alignwide">
-                    <div className="programs-filter">
-                        <div class="form-floating">
-                            <input className='form-control' aria-label="Program Search" id="program-search" name="search" type="search" value={searchTerm} onChange={(e) => handleFilterChange('search', e.target.value, setSearchTerm)} placeholder="Find a program" />
-                            <label for="program-search">Find a Program</label>
-                        </div>
-                    </div>
-                    <div className="programs-filter">
-                        <div class="form-floating">
-                            <select name="degree-type" className="form-select" id="degree-type" aria-label="Degree Type" onChange={(e) => handleFilterChange('degree_type', e.target.value, setDegreeTypeFilter)}>
-                                <option value="">Degree type</option>
-                                <option aria-label="option" value="Undergraduate" selected={degreeTypeFilter === 'Undergraduate' ? true : false}>Undergraduate</option>
-                                <option aria-label="option" value="Graduate" selected={degreeTypeFilter === 'Graduate' ? true : false}>Graduate</option>
-                                <option aria-label="option" value="Undergraduate Certificate" selected={degreeTypeFilter === 'Undergraduate Certificate' ? true : false}>Undergraduate Certificate</option>
-                                <option aria-label="option" value="Graduate Certificate" selected={degreeTypeFilter === 'Graduate Certificate' ? true : false}>Graduate Certificate</option>
-                            </select>
-                            <label for="degree-type">Degree Type</label>
-                        </div>
-                    </div>
-                    <div className="programs-filter">
-                        <div class="form-floating">
-                            <select name="area" className="form-select" id="area-of-study" aria-label="Area of Study" onChange={(e) => handleFilterChange('area', e.target.value, setAreaFilter)}>
-                                <option value="">Area of study</option>
-                                {areaMap.map((area) => (
-                                    <option key={area.id} aria-label="option" value={area.id} selected={areaFilter == area.id ? true : false}>{area.name}</option>
-                                ))}
-                            </select>
-                            <label for="area-of-study">Area of Study</label>
-                        </div>
-                    </div>
-                    <div className="programs-filter">
-                        <div class="form-floating">
-                            <select name="college" className="form-select" id="college" aria-label="College" onChange={(e) => handleFilterChange('college', e.target.value, setCollegeFilter)}>
-                                <option value="">College</option>
-                                {collegeMap.map((college) => (
-                                    <option key={college.id} aria-label="option" value={college.id} selected={collegeFilter == college.id ? true : false}>{college.name}</option>
-                                ))}
-                            </select>
-                            <label for="college">College</label>
-                        </div>
-                    </div>
-                    <div className="programs-filter">
-                        <Form.Check
-                            type="switch"
-                            id="custom-switch"
-                            label="Online"
-                            checked={onlineFilter === 'true'} // Ensure it reflects the current state
-                            onChange={() => handleFilterChange('online', onlineFilter ? '' : 'true', setOnlineFilter)}
-                        />
-                    </div>
-                </div>
-                <section className="filtersSection alignwide"></section>
-                <div className="programs-filter-chips alignwide">
-                    {searchTerm.length > 0 ? <div className="programs-filter-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>{searchTerm} <span>x</span></div> : ''}
-                    {degreeTypeFilter.length > 0 ? <div className="programs-filter-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>{degreeTypeFilter} <span>x</span></div> : ''}
-                    {areaFilter.length > 0 ? <div className="programs-filter-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>{areaFilterName} <span>x</span></div> : ''}
-                    {collegeFilter.length > 0 ? <div className="programs-filter-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>{collegeFilterName} <span>x</span></div> : ''}
-                    {onlineFilter.length > 0 ? <div className="programs-filter-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>Online<span>x</span></div> : ''}
-                </div>
-                <section className="programs-filter-results alignwide">
-                    <ol className="programGrid" id="program-results">
-                        <li className="labelContainer">
-                            <h2 className="programLabel">Program</h2>
-                            <h2 className="programLabel">Degree / Certificate</h2>
-                            <h2 className="programLabel">
-                                Concentration
-                                <span className="toolTip" tabIndex="0">
-                                    <span className="messageConcentratation">
-                                        <p>Some programs may not offer concentrations while others may require them.</p>
-                                    </span>
-                                </span>
-                            </h2>
-                        </li>
-                        {isLoading ? (
-                            displayPlaceholders(7)
-                        ) : programs.length === 0 && !isLoading ? (
-                            <div id="no-results">
-                                <h2>There are no matches for your search.</h2>
-                                <p>Try searching again with different terms.</p>
+                    <div className="programs-filters-stage">
+                        <div className="programs-filters-fields">
+                            <div className="programs-filters-field">
+                                <div class="form-floating">
+                                    <input className='form-control' aria-label="Program Search" id="program-search" name="search" type="search" value={searchTerm} onChange={(e) => handleFilterChange('search', e.target.value, setSearchTerm)} placeholder="Find a program" />
+                                    <label for="program-search">Find a Program</label>
+                                </div>
                             </div>
-                        ) : (
-                            <>
-                                {programs.map((program) => (
-                                    <li key={program.id} className="programEntry">
-                                        <div className="programName">
-                                            <p>{program.major}</p>
-                                        </div>
-                                        <ol className="degreeList">
-                                            {program.degrees.map((degree, index) => (
-                                                <li key={index}>
-                                                    {degree.name}
-                                                    {/* <a href={degree.url} target="_blank" rel="noopener noreferrer">
+                            <div className="programs-filters-field">
+                                <div class="form-floating">
+                                    <select name="degree-type" className="form-select" id="degree-type" aria-label="Degree Type" onChange={(e) => handleFilterChange('degree_type', e.target.value, setDegreeTypeFilter)}>
+                                        <option value="">Degree type</option>
+                                        <option aria-label="option" value="Undergraduate" selected={degreeTypeFilter === 'Undergraduate' ? true : false}>Undergraduate</option>
+                                        <option aria-label="option" value="Graduate" selected={degreeTypeFilter === 'Graduate' ? true : false}>Graduate</option>
+                                        <option aria-label="option" value="Undergraduate Certificate" selected={degreeTypeFilter === 'Undergraduate Certificate' ? true : false}>Undergraduate Certificate</option>
+                                        <option aria-label="option" value="Graduate Certificate" selected={degreeTypeFilter === 'Graduate Certificate' ? true : false}>Graduate Certificate</option>
+                                    </select>
+                                    <label for="degree-type">Degree Type</label>
+                                </div>
+                            </div>
+                            <div className="programs-filters-field">
+                                <div class="form-floating">
+                                    <select name="area" className="form-select" id="area-of-study" aria-label="Area of Study" onChange={(e) => handleFilterChange('area', e.target.value, setAreaFilter)}>
+                                        <option value="">Area of study</option>
+                                        {areaMap.map((area) => (
+                                            <option key={area.id} aria-label="option" value={area.id} selected={areaFilter == area.id ? true : false}>{area.name}</option>
+                                        ))}
+                                    </select>
+                                    <label for="area-of-study">Area of Study</label>
+                                </div>
+                            </div>
+                            <div className="programs-filters-field">
+                                <div class="form-floating">
+                                    <select name="college" className="form-select" id="college" aria-label="College" onChange={(e) => handleFilterChange('college', e.target.value, setCollegeFilter)}>
+                                        <option value="">College</option>
+                                        {collegeMap.map((college) => (
+                                            <option key={college.id} aria-label="option" value={college.id} selected={collegeFilter == college.id ? true : false}>{college.name}</option>
+                                        ))}
+                                    </select>
+                                    <label for="college">College</label>
+                                </div>
+                            </div>
+                            <div className="programs-filters-field">
+                                <Form.Check
+                                    type="switch"
+                                    id="custom-switch"
+                                    label="Online"
+                                    checked={onlineFilter === 'true'} // Ensure it reflects the current state
+                                    onChange={() => handleFilterChange('online', onlineFilter ? '' : 'true', setOnlineFilter)}
+                                />
+                            </div>
+                        </div>
+                        <div className="programs-filters-chips">
+                            {searchTerm.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>{searchTerm} <span>x</span></div> : ''}
+                            {degreeTypeFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>{degreeTypeFilter} <span>x</span></div> : ''}
+                            {areaFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>{areaFilterName} <span>x</span></div> : ''}
+                            {collegeFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>{collegeFilterName} <span>x</span></div> : ''}
+                            {onlineFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>Online<span>x</span></div> : ''}
+                        </div>
+                    </div>
+                    <div className="programs-filters-results">
+                        <ol className="programGrid" id="program-results">
+                            <li className="labelContainer">
+                                <h2 className="programLabel">Program</h2>
+                                <h2 className="programLabel">Degree / Certificate</h2>
+                                <h2 className="programLabel">
+                                    Concentration
+                                    <span className="toolTip" tabIndex="0">
+                                        <span className="messageConcentratation">
+                                            <p>Some programs may not offer concentrations while others may require them.</p>
+                                        </span>
+                                    </span>
+                                </h2>
+                            </li>
+                            {isLoading ? (
+                                displayPlaceholders(7)
+                            ) : programs.length === 0 && !isLoading ? (
+                                <div id="no-results">
+                                    <h2>There are no matches for your search.</h2>
+                                    <p>Try searching again with different terms.</p>
+                                </div>
+                            ) : (
+                                <>
+                                    {programs.map((program) => (
+                                        <li key={program.id} className="programEntry">
+                                            <div className="programName">
+                                                <p>{program.major}</p>
+                                            </div>
+                                            <ol className="degreeList">
+                                                {program.degrees.map((degree, index) => (
+                                                    <li key={index}>
                                                         {degree.name}
-                                                    </a> */}
-                                                </li>
-                                            ))}
-                                        </ol>
-                                        <ol className="concentrationList">
-                                            {program.concentrations.map((concentration, index) => (
-                                                <li key={index}>
-                                                    {concentration.name}{' '}
-                                                    {concentration.online && (
-                                                        <span className="onlineTag">Online</span>
-                                                    )}
-                                                </li>
-                                            ))}
-                                        </ol>
-                                    </li>
-                                ))}
-                            </>
-                        )}
-                        <div id="load-more-trigger" style={{ gridColumn: '1 / 4' }}></div>
-                        <div style={{ display: "none" }}></div>
-                        {loadingMore && displayPlaceholders(5)}
-                    </ol>
-                </section>
+                                                        {/* <a href={degree.url} target="_blank" rel="noopener noreferrer">
+                                                            {degree.name}
+                                                        </a> */}
+                                                    </li>
+                                                ))}
+                                            </ol>
+                                            <ol className="concentrationList">
+                                                {program.concentrations.map((concentration, index) => (
+                                                    <li key={index}>
+                                                        {concentration.name}{' '}
+                                                        {concentration.online && (
+                                                            <span className="onlineTag">Online</span>
+                                                        )}
+                                                    </li>
+                                                ))}
+                                            </ol>
+                                        </li>
+                                    ))}
+                                </>
+                            )}
+                            <div id="load-more-trigger" style={{ gridColumn: '1 / 4' }}></div>
+                            <div style={{ display: "none" }}></div>
+                            {loadingMore && displayPlaceholders(5)}
+                        </ol>
+                    </div>
+                </div>
             </section>
         </>
     );

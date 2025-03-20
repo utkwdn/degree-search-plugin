@@ -31,48 +31,64 @@ label {
 }
 
 .programs-filters {
+  
+}
+
+.programs-filters-stage {
+  margin-top: -7.5rem;
+  padding: 1.25rem 1.25rem 0;
+  background: #fff;
+}
+
+@media (min-width: 600px) {
+  .programs-filters-stage {
+    padding: 1.875rem 1.875rem 0;
+  }
+}
+
+.programs-filters-fields {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
 }
 
 @media (min-width: 600px) {
-  .programs-filters {
+  .programs-filters-fields {
     grid-template-columns: repeat(5, 1fr);
     align-items: center;
   }
 }
 
-.programs-filter-results {
+.programs-filters-results {
   position: relative;
   margin: 0 0 1.5rem 0;
   justify-items: start;
   align-items: start;
 }
 
-.programs-filter-results:before {
-  content: '';
-  display: block;
-  position: absolute;
-  left: 0;
-  right: 0;
-  border-top: 1px solid #FF8200;
-  /* Substitute for $utorange */
-  width: 100vw;
-}
+// .programs-filters-results:before {
+//   content: '';
+//   display: block;
+//   position: absolute;
+//   left: 0;
+//   right: 0;
+//   border-top: 1px solid #FF8200;
+//   /* Substitute for $utorange */
+//   width: 100vw;
+// }
 
 @media screen and (min-width: 940px) {
-  .programs-filter-results {
-    padding: 1rem 0 3rem;
+  .programs-filters-results {
+    padding: 0 0 3rem;
   }
 
-  .programs-filter-results:before {
-    content: none;
-  }
+  // .programs-filters-results:before {
+  //   content: none;
+  // }
 }
 
 @media screen and (min-width: 1200px) {
-  .programs-filter-results {
+  .programs-filters-results {
     margin: 0 auto 3rem auto;
   }
 }
@@ -116,12 +132,11 @@ label {
   display: grid;
   grid-template-columns: 1fr;
   grid-row-gap: 1rem;
-  padding: 1rem 2rem;
-  letter-spacing: 0.1rem;
   justify-items: start;
   align-items: start;
-  border-bottom: 1px solid #FF8200;
   margin: 0;
+  padding: 1rem 1.875rem;
+  border-bottom: 4px solid #FF8200;
 }
 
 @media screen and (max-width: 940px) {
@@ -131,9 +146,9 @@ label {
 }
 
 h2.programLabel {
-  font-weight: 700;
-  text-transform: uppercase;
-  font-size: .875rem;
+  font-size: 1.125rem;
+  line-height: 1.625rem;
+  font-weight: 400;
   margin-bottom: 0;
 }
 
@@ -330,19 +345,22 @@ h2.programLabel {
   }
 }
 
-.programs-filter-chips {
-  margin: 10px auto 0;
+.programs-filters-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 32px;
+  margin: 20px auto;
 }
 
-.programs-filter-chip {
-  background: #4b4b4b;
-  display: inline;
-  color: #fff;
+.programs-filters-chip {
+  height: 32px;
+  padding: 5px 7px 5px 11px;
+  font-size: 0.813rem;
   border-radius: 20px;
-  padding: 5px 7px 6px 11px;
-  font-size: 0.95rem;
-  margin-right: 5px;
-
+  color: #fff;
+  background: #4b4b4b;
+  
   span {
     background: #fff;
     color: #4b4b4b;
