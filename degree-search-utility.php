@@ -294,6 +294,9 @@ add_filter('rest_program_query', function ($args, $request) {
         }
 
         if ($degree_type) {
+			// Use 'LIKE' comparison for 'certificate to bring back both graduate and undergraduate certificates
+            $compare_operator = $degree_type === "certificate" ? 'LIKE' : '=';
+
             // Get all degree terms with the requested ACF degree_type
             $degree_terms = get_terms([
                 'taxonomy'   => 'degree',
@@ -303,7 +306,7 @@ add_filter('rest_program_query', function ($args, $request) {
                     [
                         'key'     => 'degree_type',  // ACF field key
                         'value'   => $degree_type,  // User requested value
-                        'compare' => '='
+                        'compare' => $compare_operator
                     ]
                 ]
             ]);

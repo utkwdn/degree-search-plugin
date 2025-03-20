@@ -11,6 +11,12 @@
 	"supports": {
 		"html": false
 	},
+	"attributes": {
+		"areaOfStudy": {
+			"type": "string",
+			"default": ""
+		}
+	},
 	"textdomain": "degree-search-widget",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",

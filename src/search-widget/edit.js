@@ -1,40 +1,47 @@
-/**
- * Retrieves the translation of text.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * React hook that is used to mark the block wrapper element.
- * It provides all the necessary props like the class name.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
- */
-import { useBlockProps } from '@wordpress/block-editor';
-
-/**
- * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
- * Those files can contain any CSS code that gets applied to the editor.
- *
- * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
- */
+import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
+import { PanelBody, SelectControl, Spinner } from '@wordpress/components';
+import { useState, useEffect } from '@wordpress/element';
+import apiFetch from '@wordpress/api-fetch';
 import './editor.scss';
 
-/**
- * The edit function describes the structure of your block in the context of the
- * editor. This represents what the editor will render when the block is used.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
- *
- * @return {Element} Element to render.
- */
-export default function Edit() {
-	return (
-		<section { ...useBlockProps() } className="areasContainer alignfull" id="filters">
-			{ __(
-			<p>Your widget here.</p>
-			) }
-		</section>
-	);
+export default function Edit({ attributes, setAttributes }) {
+    const [areas, setAreas] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        apiFetch({ path: '/wp/v2/area?per_page=100' }) // Fetch taxonomy terms
+            .then((data) => {
+                const options = data.map((term) => ({
+                    label: term.name,
+                    value: term.id.toString(),
+                }));
+                setAreas(options);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
+    }, []);
+
+    return (
+        <>
+            <InspectorControls>
+                <PanelBody title={__('Block Settings', 'degree-search-widget')} initialOpen={true}>
+                    {loading ? (
+                        <Spinner />
+                    ) : (
+                        <SelectControl
+                            label={__('Select an Area of Study', 'degree-search-widget')}
+                            value={attributes.areaOfStudy}
+                            options={[{ label: __('Select an Area', 'degree-search-widget'), value: '' }, ...areas]}
+                            onChange={(newValue) => setAttributes({ areaOfStudy: newValue })}
+                        />
+                    )}
+                </PanelBody>
+            </InspectorControls>
+
+            <section {...useBlockProps()} className="areasContainer alignfull" id="filters">
+                <p>{attributes.areaOfStudy ? `Selected Area: ${areas.find(a => a.value === attributes.areaOfStudy)?.label}` : __('Your widget here.', 'degree-search-widget')}</p>
+            </section>
+        </>
+    );
 }
