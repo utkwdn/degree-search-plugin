@@ -5,7 +5,10 @@
  * Replace them with your own styles or remove the file completely.
  */
 
+$input-border-color: red;
+
 @use '~bootstrap/scss/bootstrap';
+
 
 .areasContainer {
   padding-bottom: 3rem;
@@ -23,7 +26,7 @@ label {
 
 // END MOVE TO UTKWDS
 
-@media (min-width: 800px) {
+@media screen and (min-width: 800px) {
   .areasContainer {
     flex-direction: row;
     margin: 0 auto;
@@ -40,7 +43,7 @@ label {
   background: #fff;
 }
 
-@media (min-width: 600px) {
+@media screen and (min-width: 960px) {
   .programs-filters-stage {
     padding: 1.875rem 1.875rem 0;
   }
@@ -52,7 +55,7 @@ label {
   gap: 16px;
 }
 
-@media (min-width: 960px) {
+@media screen and (min-width: 960px) {
   .programs-filters-fields {
     grid-template-columns: repeat(4, 1fr) auto;
     align-items: center;
@@ -60,7 +63,7 @@ label {
 }
 
 // WIP
-// @media (min-width: 780px) {
+// @media screen and (min-width: 780px) {
 //   .programs-filters-fields {
 //     align-items: center;
 //   }
@@ -72,13 +75,13 @@ label {
 //   }
 // }
 
-// @media (min-width: 960px) {
+// @media screen and (min-width: 960px) {
 //   .programs-filters-fields {
 //     grid-template-columns: repeat(3, 1fr);
 //   }
 // }
 
-// @media (min-width: 1170px) {
+// @media screen and (min-width: 1170px) {
 //   .programs-filters-fields {
 //     grid-template-columns: repeat(4, 1fr) auto;
 //   }
@@ -92,23 +95,12 @@ label {
 
 .programs-filters-results {
   position: relative;
-  margin: 0 0 1.5rem 0;
-  justify-items: start;
-  align-items: start;
+  margin-right: calc(var(--wp--style--root--padding-right) * -1);
+  margin-bottom: 1.5rem;
+  margin-left: calc(var(--wp--style--root--padding-left) * -1);
 }
 
-// .programs-filters-results:before {
-//   content: '';
-//   display: block;
-//   position: absolute;
-//   left: 0;
-//   right: 0;
-//   border-top: 1px solid #FF8200;
-//   /* Substitute for $utorange */
-//   width: 100vw;
-// }
-
-@media screen and (min-width: 940px) {
+@media screen and (min-width: 960px) {
   .programs-filters-results {
     padding: 0 0 3rem;
   }
@@ -118,13 +110,13 @@ label {
   // }
 }
 
-@media screen and (min-width: 1200px) {
+@media screen and (min-width: 960px) {
   .programs-filters-results {
-    margin: 0 auto 3rem auto;
+    margin: 0 auto 3rem;
   }
 }
 
-.onlineTag {
+.online-tag {
   background-color: rgba(255, 130, 0, 0.2);
   margin-top: 0.2rem;
   padding: 0.1rem 0.3rem;
@@ -141,26 +133,12 @@ label {
   border-radius: 0.2rem;
 }
 
-.programGrid {
-  grid-template-columns: 1fr;
-  display: grid;
-  padding: 0;
-  align-items: start;
-  width: 100%;
-}
-
-.programGrid .programEntry:nth-child(even) {
+.program-entry:nth-child(even) {
   background-color: #fbfbfb;
 }
 
-@media screen and (min-width: 940px) {
-  .programGrid {
-    grid-template-columns: repeat(auto-fit, minmax(240px, auto));
-  }
-}
-
-.labelContainer {
-  display: grid;
+.programs-filters-headings {
+  display: none;
   grid-template-columns: 1fr;
   grid-row-gap: 1rem;
   justify-items: start;
@@ -170,103 +148,33 @@ label {
   border-bottom: 4px solid #FF8200;
 }
 
-@media screen and (max-width: 940px) {
-  .labelContainer {
-    display: none;
+@media screen and (min-width: 960px) {
+  .programs-filters-headings {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(200px, 3fr));
+    grid-column-gap: 3rem;
   }
 }
 
-h2.programLabel {
+h2.programs-filters-heading {
+  display: flex;
+  gap: 5px;
+  align-items: center;
   font-size: 1.125rem;
   line-height: 1.625rem;
   font-weight: 400;
   margin-bottom: 0;
-}
 
-.toolTip {
-  display: inline-block;
-  position: relative;
-  padding: 0;
-  margin: 0;
-  line-height: 0;
-  letter-spacing: normal;
-}
-
-.toolTip:after {
-  display: inline-block;
-  margin-left: 0.25rem;
-  margin-right: 0.73rem;
-  width: auto;
-  padding: 0;
-  line-height: 0;
-  content: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 19 19' fill='%234b4b4b' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M9.2,0C4.12,0,0,4.12,0,9.2s4.12,9.2,9.2,9.2,9.2-4.12,9.2-9.2S14.28,0,9.2,0ZM10.31,14.19c0,.2-.16.36-.36.36h-1.51c-.2,0-.36-.16-.36-.36v-7.14c0-.2.16-.36.36-.36h1.51c.2,0,.36.16,.36.36v7.14ZM10.37,5.47c0,.2-.16.36-.36.36h-1.63c-.2,0-.36-.16-.36-.36v-1.27c0-.2.16-.36.36-.36h1.63c.2,0,.36.16,.36.36v1.27Z' /%3E%3C/svg%3E");
-}
-
-.toolTip:hover .messageConcentratation,
-.toolTip:focus .messageConcentratation {
-  display: block;
-  z-index: 10;
-  position: absolute;
-  bottom: 2rem;
-  left: -120px;
-  text-transform: none !important;
-  background-color: #fbfbfb;
-  border: 1px solid #dadada;
-  padding: 1rem;
-  width: 240px;
-  color: #4b4b4b; /* Replace $utsmokeytext */
-}
-
-.toolTip:hover .messageConcentratation:before,
-.toolTip:focus .messageConcentratation:before {
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  z-index: 8 !important;
-  content: '';
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 10px solid #dadada;
-}
-
-.toolTip:hover .messageConcentratation:after,
-.toolTip:focus .messageConcentratation:after {
-  position: absolute;
-  bottom: -9px;
-  left: 50%;
-  z-index: 11;
-  content: '';
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 10px solid #fbfbfb;
-}
-
-.toolTip:hover .messageConcentratation p,
-.toolTip:focus .messageConcentratation p {
-  font-weight: normal; /* Replace $font-weight-normal */
-  font-size: 0.92rem; 
-  line-height: 1.26; /* Replace calc($line-height-base * 0.9) with actual value */
-  margin: 0;
-  padding: 0;
+  span {
+    display: flex;
+  }
 }
 
 .messageConcentratation {
   display: none;
 }
 
-@media screen and (min-width: 940px) {
-  .labelContainer {
-    grid-column: 1 / 4;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    grid-column-gap: 3rem;
-  }
-}
-
-.programEntry {
+.program-entry {
   display: grid;
   grid-template-columns: 1fr;
   grid-row-gap: 1rem;
@@ -278,17 +186,16 @@ h2.programLabel {
 }
 
 
-@media screen and (min-width: 940px) {
-  .programEntry {
-    grid-column: 1 / 4;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+@media screen and (min-width: 960px) {
+  .program-entry {
+    grid-template-columns: repeat(3, minmax(200px, 3fr));
     grid-column-gap: 3rem;
     padding: 3rem 2rem;
     margin: 0;
   }
 }
 
-.programEntry>.programName p {
+.program-entry>.program-name p {
   margin: 0;
   line-height: clamp(1.3rem, 3.5vw, 1.63rem);
   font-size: 1rem;
@@ -297,15 +204,16 @@ h2.programLabel {
   justify-self: stretch;
 }
 
-@media screen and (min-width: 940px) {
-  .programEntry>.programName p {
+@media screen and (min-width: 960px) {
+  .program-entry>.program-name p {
     grid-column: 1 / 2;
   }
 }
 
-.concentrationList,
-.areaList,
-.collegeList {
+.placeholder-list,
+.concentration-list,
+.area-list,
+.college-list {
   font-size: 1rem;
   justify-self: stretch;
   list-style: none;
@@ -313,25 +221,9 @@ h2.programLabel {
   flex-direction: column;
   gap: 1rem;
   padding: 0;
-  /* margin: .75rem 0 0 1rem; */
 }
 
-@media screen and (max-width: 940px) {
-  .concentrationList {
-    margin: .75rem 0 0 1rem;
-  }
-
-  .programEntry>.concentrationList:not(.noConcentrations):before {
-    content: "concentrations";
-    font-size: .7875rem;
-    padding: 0;
-    margin: 0 0 -.3rem;
-    color: #4b4b4b;
-    border-bottom: 1px solid #ff8200;
-  }
-}
-
-.degreeList {
+.degree-list {
   justify-self: stretch;
   list-style: none;
   display: flex;
@@ -344,12 +236,26 @@ h2.programLabel {
   font-size: .84875rem;
 }
 
-.degreeList li,
-.concentrationList li,
-.areaList li,
-.collegeList li {
+.placeholder-list li,
+.degree-list li,
+.concentration-list li,
+.area-list li,
+.college-list li {
   margin-left: 0;
 }
+
+// MOVE TO UTKWDS
+
+.placeholder-list {
+  color: #d9d9d9;
+
+  .placeholder {
+    min-height: 32px;
+    border-radius: 4px;
+  }
+}
+
+// END MOVE TO UTKWDS
 
 .programs-container {
   @media screen and (min-width: 1170px) {
@@ -380,11 +286,19 @@ h2.programLabel {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  min-height: 32px;
   margin: 20px auto;
 }
 
+@media screen and (min-width: 960px) {
+  .programs-filters-chips {
+    min-height: 32px;
+  }
+}
+
 .programs-filters-chip {
+  display: flex;
+  gap: 5px;
+  align-items: center;
   height: 32px;
   padding: 5px 7px 5px 11px;
   font-size: 0.813rem;

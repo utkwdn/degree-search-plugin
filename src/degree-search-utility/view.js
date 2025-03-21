@@ -25,6 +25,9 @@ export default function View() {
     const [areaMap, setAreaMap] = useState([]);
     const [collegeMap, setCollegeMap] = useState([]);
 
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
     const fetchPrograms = (page = 1, append = false, signal) => {
         setIsLoading(page === 1);
         setLoadingMore(page > 1);
@@ -226,13 +229,29 @@ export default function View() {
         return (
             <>
                 {Array.from({ length: numItems }).map((_, index) => (
-                    <li key={index} className="programEntry">
+                    <div key={index} className="program-entry">
                         {Array.from({ length: 3 }).map((_, subIndex) => (
-                            <ol key={subIndex} className="concentrationList"><Placeholder as="li" animation="glow"><Placeholder xs={12} size="lg" /></Placeholder></ol>
+                            <ul key={subIndex} className="placeholder-list"><Placeholder as="li" animation="glow"><Placeholder xs={12} size="lg" /></Placeholder></ul>
                         ))}
-                    </li>
+                    </div>
                 ))}
             </>
+        );
+    };
+
+    const CloseIcon = () => {
+        return (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
+            </svg>
+        );
+    };
+
+    const InfoIcon = () => {
+        return (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+            </svg>
         );
     };
 
@@ -294,69 +313,65 @@ export default function View() {
                             </div>
                         </div>
                         <div className="programs-filters-chips">
-                            {searchTerm.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>{searchTerm} <span>x</span></div> : ''}
-                            {degreeTypeFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>{degreeTypeFilter} <span>x</span></div> : ''}
-                            {areaFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>{areaFilterName} <span>x</span></div> : ''}
-                            {collegeFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>{collegeFilterName} <span>x</span></div> : ''}
-                            {onlineFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>Online<span>x</span></div> : ''}
+                            {searchTerm.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>{searchTerm} <CloseIcon /></div> : ''}
+                            {degreeTypeFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>{degreeTypeFilter} <CloseIcon /></div> : ''}
+                            {areaFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>{areaFilterName} <CloseIcon /></div> : ''}
+                            {collegeFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>{collegeFilterName} <CloseIcon /></div> : ''}
+                            {onlineFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>Online <CloseIcon /></div> : ''}
                         </div>
                     </div>
-                    <div className="programs-filters-results">
-                        <ol className="programGrid" id="program-results">
-                            <li className="labelContainer">
-                                <h2 className="programLabel">Program</h2>
-                                <h2 className="programLabel">Degree / Certificate</h2>
-                                <h2 className="programLabel">
-                                    Concentration
-                                    <span className="toolTip" tabIndex="0">
-                                        <span className="messageConcentratation">
-                                            <p>Some programs may not offer concentrations while others may require them.</p>
-                                        </span>
-                                    </span>
-                                </h2>
-                            </li>
-                            {isLoading ? (
-                                displayPlaceholders(7)
-                            ) : programs.length === 0 && !isLoading ? (
-                                <div id="no-results">
-                                    <h2>There are no matches for your search.</h2>
-                                    <p>Try searching again with different terms.</p>
-                                </div>
-                            ) : (
-                                <>
-                                    {programs.map((program) => (
-                                        <li key={program.id} className="programEntry">
-                                            <div className="programName">
-                                                <p>{program.major}</p>
-                                            </div>
-                                            <ol className="degreeList">
-                                                {program.degrees.map((degree, index) => (
-                                                    <li key={index}>
+                    <div className="programs-filters-results" id="program-results">
+                        <div className="programs-filters-headings">
+                            <h2 className="programs-filters-heading">Program</h2>
+                            <h2 className="programs-filters-heading">Degree / Certificate</h2>
+                            <h2 className="programs-filters-heading">
+                                Concentration
+                                <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="tooltip" data-bs-title="Some programs may not offer concentrations while others may require them.">
+                                    <InfoIcon />
+                                </span>
+                            </h2>
+                        </div>
+                        {isLoading ? (
+                            displayPlaceholders(7)
+                        ) : programs.length === 0 && !isLoading ? (
+                            <div id="no-results">
+                                <h2>There are no matches for your search.</h2>
+                                <p>Try searching again with different terms.</p>
+                            </div>
+                        ) : (
+                            <>
+                                {programs.map((program) => (
+                                    <div key={program.id} className="program-entry">
+                                        <div className="program-name">
+                                            <p>{program.major}</p>
+                                        </div>
+                                        <ul className="degree-list">
+                                            {program.degrees.map((degree, index) => (
+                                                <li key={index}>
+                                                    {degree.name}
+                                                    {/* <a href={degree.url} target="_blank" rel="noopener noreferrer">
                                                         {degree.name}
-                                                        {/* <a href={degree.url} target="_blank" rel="noopener noreferrer">
-                                                            {degree.name}
-                                                        </a> */}
-                                                    </li>
-                                                ))}
-                                            </ol>
-                                            <ol className="concentrationList">
-                                                {program.concentrations.map((concentration, index) => (
-                                                    <li key={index}>
-                                                        {concentration.name}{' '}
-                                                        {concentration.online && (
-                                                            <span className="onlineTag">Online</span>
-                                                        )}
-                                                    </li>
-                                                ))}
-                                            </ol>
-                                        </li>
-                                    ))}
-                                </>
-                            )}
-                            <div id="load-more-trigger" style={{ gridColumn: '1 / 4' }}></div>
-                            <div style={{ display: "none" }}></div>
-                            {loadingMore && displayPlaceholders(5)}
-                        </ol>
+                                                    </a> */}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <ul className="concentration-list">
+                                            {program.concentrations.map((concentration, index) => (
+                                                <li key={index}>
+                                                    {concentration.name}{' '}
+                                                    {concentration.online && (
+                                                        <span className="online-tag">Online</span>
+                                                    )}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                ))}
+                            </>
+                        )}
+                        <div id="load-more-trigger"></div>
+                        <div style={{ display: "none" }}></div>
+                        {loadingMore && displayPlaceholders(5)}
                     </div>
                 </div>
             </section>
