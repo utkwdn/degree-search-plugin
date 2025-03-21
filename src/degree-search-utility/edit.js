@@ -59,50 +59,41 @@ export default function Edit() {
 	];
 
 	return (
-		<section { ...useBlockProps() } className="areasContainer alignfull" id="filters">
+		<section { ...useBlockProps() } className="programs-filters alignwide" id="filters">
 			{ __(
-			<section className="resultsSection">
-				<ol className="programGrid" id="program-results">
-					<li className="labelContainer">
-						<h2 className="programLabel">Program</h2>
-						<h2 className="programLabel">Degree / Certificate</h2>
-						<h2 className="programLabel">
-							Concentration
-							<span className="toolTip" tabIndex="0">
-								<span className="messageConcentratation">
-									<p>Some programs may not offer concentrations while others may require them.</p>
-								</span>
-							</span>
-						</h2>
-					</li>
-					{programData.map((program) => (
-						<li key={program.id} className="programEntry">
-							<div className="programName">
-                                <p>{program.major}</p>
-                            </div>
-							<ol className="degreeList">
-								{program.degrees.map((degree, index) => (
-									<li key={index}>
-										<a href={degree.url} target="_blank" rel="noopener noreferrer">
-											{degree.name}
-										</a>
-									</li>
-								))}
-							</ol>
-							<ol className="concentrationList">
-								{program.concentrations.map((concentration, index) => (
-									<li key={index}>
-										{concentration.name}{' '}
-										{concentration.online && (
-											<span className="onlineTag">Online</span>
-										)}
-									</li>
-								))}
-							</ol>
-						</li>
-					))}
-				</ol>
-			</section>
+			<div className="programs-filters-results" id="program-results">
+				<div className="programs-filters-headings">
+					<h2 className="programs-filters-heading">Program</h2>
+					<h2 className="programs-filters-heading">Degree / Certificate</h2>
+					<h2 className="programs-filters-heading">Concentration</h2>
+				</div>
+				{programData.map((program) => (
+					<div key={program.id} className="program-entry">
+						<div className="program-name">
+								<p>{program.major}</p>
+						</div>
+						<ul className="degree-list">
+							{program.degrees.map((degree, index) => (
+								<li key={index}>
+									<a href={degree.url} target="_blank" rel="noopener noreferrer">
+										{degree.name}
+									</a>
+								</li>
+							))}
+						</ul>
+						<ul className="concentration-list">
+							{program.concentrations.map((concentration, index) => (
+								<li key={index}>
+									{concentration.name}{' '}
+									{concentration.online && (
+										<span className="online-tag">Online</span>
+									)}
+								</li>
+							))}
+						</ul>
+					</div>
+				))}
+			</div>
 			) }
 		</section>
 	);
