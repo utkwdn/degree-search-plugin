@@ -1,16 +1,81 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
 
-export default function View({ areaOfStudy }) {    
+export default function View({ areaOfStudy, degreeSearchUrl }) {
+    const [searchValue, setSearchValue] = useState('');
+
+    // Generate links with query parameters
+    const generateLink = (base, params) => {
+        const url = new URL(base, window.location.origin);
+        Object.entries(params).forEach(([key, value]) => {
+            if (value) url.searchParams.set(key, value);
+        });
+        return url.toString();
+    };
+
+    const handleSearch = (event) => {
+        event.preventDefault();
+
+        if (degreeSearchUrl) {
+            window.location.href = generateLink(degreeSearchUrl, {
+                area: areaOfStudy,
+                search: searchValue
+            });
+        }
+    };
+
+    // Define link items to avoid repetition
+    const linkItems = [
+        { label: 'Undergraduate', params: { degree_type: 'Undergraduate' } },
+        { label: 'Graduate', params: { degree_type: 'Graduate' } },
+        { label: 'Online', params: { online: 'true' } },
+        { label: 'Certificate', params: { degree_type: 'certificate' } },
+        { label: 'All programs', params: {} }
+    ];
+
     return (
-        <p>Selected Area: {areaOfStudy ? areaOfStudy : "None selected."}</p>
+        <div>
+            <section className='searchContainer'>
+                <Form onSubmit={handleSearch}>
+                    <InputGroup className="mb-3">
+                        <FloatingLabel controlId="floatingInput" label="Find your program">
+                            <Form.Control 
+                                type="text" 
+                                onChange={(e) => setSearchValue(e.target.value)} 
+                                value={searchValue} 
+                            />
+                        </FloatingLabel>
+                        <Button variant="outline-secondary" id="button-addon2" type="submit">
+                            Search
+                        </Button>
+                    </InputGroup>
+                </Form>
+            </section>
+
+            <div>
+                <ul className="linkList">
+                    {linkItems.map(({ label, params }) => (
+                        <li key={label}>
+                            <a href={generateLink(degreeSearchUrl, { ...params, area: areaOfStudy, search: searchValue })}>
+                                {label}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
     );
 }
 
 // Get the container and read the `data-area` attribute
 const container = document.getElementById('search-widget');
 const areaOfStudy = container.getAttribute('data-area') || '';
+const degreeSearchUrl = container.getAttribute('data-url') || '';
 
 const root = createRoot(container);
-root.render(<View areaOfStudy={areaOfStudy} />);
+root.render(<View areaOfStudy={areaOfStudy} degreeSearchUrl={degreeSearchUrl} />);

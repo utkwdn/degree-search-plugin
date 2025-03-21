@@ -15,6 +15,10 @@
 		"areaOfStudy": {
 			"type": "string",
 			"default": ""
+		},
+		"degreeSearchPage": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"textdomain": "degree-search-widget",
