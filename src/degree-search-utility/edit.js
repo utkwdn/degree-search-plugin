@@ -69,28 +69,33 @@ export default function Edit() {
 				</div>
 				{programData.map((program) => (
 					<div key={program.id} className="program-entry">
-						<div className="program-name">
-								<p>{program.major}</p>
+						<div className="program-entry-block">
+							<p className="program-entry-label">Program</p>
+							<p className="program-entry-text">{program.major}</p>
 						</div>
-						<ul className="degree-list">
-							{program.degrees.map((degree, index) => (
-								<li key={index}>
-									<a href={degree.url} target="_blank" rel="noopener noreferrer">
-										{degree.name}
-									</a>
-								</li>
-							))}
-						</ul>
-						<ul className="concentration-list">
-							{program.concentrations.map((concentration, index) => (
-								<li key={index}>
-									{concentration.name}{' '}
-									{concentration.online && (
-										<span className="online-tag">Online</span>
-									)}
-								</li>
-							))}
-						</ul>
+						<div className="program-entry-block">
+							<p className="program-entry-label">Degree / Certificate</p>
+							<ul className="degree-list">
+								{program.degrees.map((degree, index) => (
+									<li key={index} className="program-entry-link">
+                    {degree.name}
+									</li>
+								))}
+							</ul>							
+						</div>
+						<div className="program-entry-block">
+							<p className="program-entry-label">Concentrations</p>
+							<ul className="concentration-list">
+								{program.concentrations.map((concentration, index) => (
+									<li key={index}>
+										{concentration.name}{' '}
+										{concentration.online && (
+											<span className="online-tag">Online</span>
+										)}
+									</li>
+								))}
+							</ul>						
+						</div>
 					</div>
 				))}
 			</div>

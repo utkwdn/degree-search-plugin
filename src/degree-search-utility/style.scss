@@ -98,11 +98,13 @@ label {
   margin-right: calc(var(--wp--style--root--padding-right) * -1);
   margin-bottom: 1.5rem;
   margin-left: calc(var(--wp--style--root--padding-left) * -1);
+  border-top: 1px solid #d9d9d9;
 }
 
 @media screen and (min-width: 960px) {
   .programs-filters-results {
     padding: 0 0 3rem;
+    border-top: none;
   }
 
   // .programs-filters-results:before {
@@ -117,20 +119,14 @@ label {
 }
 
 .online-tag {
-  background-color: rgba(255, 130, 0, 0.2);
-  margin-top: 0.2rem;
-  padding: 0.1rem 0.3rem;
-  text-transform: uppercase;
-  font-size: calc(14px * 0.9);
+  display: inline-flex;
+  padding: 6px 10px 5px 8px;
+  font-size: 13px;
+  line-height: 1;
   /* Replace $font-size-sm */
-  font-weight: bold;
-  letter-spacing: 0.1rem;
-  display: block;
-  width: fit-content;
-  text-decoration: none;
-  color: #4B4B4B;
   /* Substitute for $utsmokey */
-  border-radius: 0.2rem;
+  border: 1px solid #d9d9d9;
+  border-radius: 20px;
 }
 
 .program-entry:nth-child(even) {
@@ -160,9 +156,8 @@ h2.programs-filters-heading {
   display: flex;
   gap: 5px;
   align-items: center;
-  font-size: 1.125rem;
-  line-height: 1.625rem;
-  font-weight: 400;
+  font-size: var(--wp--preset--font-size--small);
+  font-weight: 500;
   margin-bottom: 0;
 
   span {
@@ -170,19 +165,13 @@ h2.programs-filters-heading {
   }
 }
 
-.messageConcentratation {
-  display: none;
-}
-
 .program-entry {
   display: grid;
   grid-template-columns: 1fr;
-  grid-row-gap: 1rem;
-  align-items: start;
-  border-bottom: 1px solid #dadada;
-  justify-items: start;
+  grid-row-gap: 15px;
   margin: 0;
-  padding: 2rem;
+  padding: 30px;
+  border-bottom: 1px solid #dadada;
 }
 
 
@@ -195,18 +184,42 @@ h2.programs-filters-heading {
   }
 }
 
-.program-entry>.program-name p {
-  margin: 0;
-  line-height: clamp(1.3rem, 3.5vw, 1.63rem);
-  font-size: 1rem;
-  /* Substitute for $h5-font-size */
-  font-weight: bold;
-  justify-self: stretch;
+.program-entry-block {
+  &:last-child {
+    padding-top: 15px;
+    border-top: 1px solid #d9d9d9;
+  }
 }
 
 @media screen and (min-width: 960px) {
-  .program-entry>.program-name p {
-    grid-column: 1 / 2;
+  .program-entry-block {
+    &:last-child {
+      border-top: none;
+    }
+  }
+}
+
+.program-entry-label {
+  margin: 0;
+  font-size: 14px;
+  line-height: 26px;
+}
+
+.program-entry-text {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.program-entry-link {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+@media screen and (min-width: 960px) {
+  .program-entry-label {
+    display: none;
   }
 }
 
@@ -219,8 +232,7 @@ h2.programs-filters-heading {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 0;
+  gap: 5px;
 }
 
 .degree-list {
@@ -228,12 +240,7 @@ h2.programs-filters-heading {
   list-style: none;
   display: flex;
   flex-direction: row;
-  gap: 1rem;
-  margin: 0 0 0 .1rem;
-  padding: 0;
-  font-weight: 800;
-  font-size: .875rem;
-  font-size: .84875rem;
+  gap: 5px;
 }
 
 .placeholder-list li,
