@@ -185,22 +185,6 @@ h2.programs-filters-heading {
   }
 }
 
-.program-entry-block {
-  &:last-child {
-    padding-top: 15px;
-    border-top: 1px solid #d9d9d9;
-  }
-}
-
-@media screen and (min-width: 960px) {
-  .program-entry-block {
-    &:last-child {
-      padding-top: 0;
-      border-top: none;
-    }
-  }
-}
-
 .program-entry-label {
   margin: 0;
   font-size: 14px;
