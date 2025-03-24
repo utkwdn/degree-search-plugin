@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import Placeholder from 'react-bootstrap/Placeholder';
 import Form from 'react-bootstrap/Form';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 export default function View() {
     const [programs, setPrograms] = useState([]);
@@ -25,8 +27,12 @@ export default function View() {
     const [areaMap, setAreaMap] = useState([]);
     const [collegeMap, setCollegeMap] = useState([]);
 
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+    // Possibly replace with default Bootstrap from UTKWDS
+    const TooltipEL = ({ id, children, title }) => (
+        <OverlayTrigger overlay={<Tooltip id={id}>{title}</Tooltip>}>
+            <span>{children}</span>
+        </OverlayTrigger>
+    );
 
     const fetchPrograms = (page = 1, append = false, signal) => {
         setIsLoading(page === 1);
@@ -326,9 +332,9 @@ export default function View() {
                             <h2 className="programs-filters-heading">Degree / Certificate</h2>
                             <h2 className="programs-filters-heading">
                                 Concentration
-                                <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="tooltip" data-bs-title="Some programs may not offer concentrations while others may require them.">
+                                <TooltipEl title="Default title" id="t-1">
                                     <InfoIcon />
-                                </span>
+                                </TooltipEl>
                             </h2>
                         </div>
                         {isLoading ? (

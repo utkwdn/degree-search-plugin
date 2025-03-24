@@ -194,6 +194,7 @@ h2.programs-filters-heading {
 @media screen and (min-width: 960px) {
   .program-entry-block {
     &:last-child {
+      padding-top: 0;
       border-top: none;
     }
   }
