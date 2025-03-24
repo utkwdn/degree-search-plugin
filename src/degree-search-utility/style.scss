@@ -18,6 +18,11 @@ $input-border-color: red;
 
 label {
   font-size: 1rem;
+  font-weight: 500;
+}
+
+select.form-select {
+  font-weight: 500;
 }
 
 .utkwds-orange-bar-texture {
@@ -197,9 +202,7 @@ h2.programs-filters-heading {
   font-weight: 500;
 }
 
-.program-entry-link {
-  margin: 0;
-  font-size: 18px;
+.program-entry-text--bold {
   font-weight: 700;
 }
 

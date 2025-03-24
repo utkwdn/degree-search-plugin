@@ -302,7 +302,7 @@ export default function View() {
                             <div className="programs-filters-field">
                                 <div class="form-floating">
                                     <select name="degree-type" className="form-select" id="degree-type" aria-label="Degree Type" onChange={(e) => handleFilterChange('degree_type', e.target.value, setDegreeTypeFilter)}>
-                                        <option value="">Degree type</option>
+                                        <option value="">Select a Degree</option>
                                         <option aria-label="option" value="Undergraduate" selected={degreeTypeFilter === 'Undergraduate' ? true : false}>Undergraduate</option>
                                         <option aria-label="option" value="Graduate" selected={degreeTypeFilter === 'Graduate' ? true : false}>Graduate</option>
                                         <option aria-label="option" value="Undergraduate Certificate" selected={degreeTypeFilter === 'Undergraduate Certificate' ? true : false}>Undergraduate Certificate</option>
@@ -314,7 +314,7 @@ export default function View() {
                             <div className="programs-filters-field">
                                 <div class="form-floating">
                                     <select name="area" className="form-select" id="area-of-study" aria-label="Area of Study" onChange={(e) => handleFilterChange('area', e.target.value, setAreaFilter)}>
-                                        <option value="">Area of study</option>
+                                        <option value="">Select an Area of Study</option>
                                         {areaMap.map((area) => (
                                             <option key={area.id} aria-label="option" value={area.id} selected={areaFilter == area.id ? true : false}>{area.name}</option>
                                         ))}
@@ -325,7 +325,7 @@ export default function View() {
                             <div className="programs-filters-field">
                                 <div class="form-floating">
                                     <select name="college" className="form-select" id="college" aria-label="College" onChange={(e) => handleFilterChange('college', e.target.value, setCollegeFilter)}>
-                                        <option value="">College</option>
+                                        <option value="">Select a College</option>
                                         {collegeMap.map((college) => (
                                             <option key={college.id} aria-label="option" value={college.id} selected={collegeFilter == college.id ? true : false}>{college.name}</option>
                                         ))}
@@ -375,13 +375,13 @@ export default function View() {
                                     <div key={program.id} className="program-entry">
                                         <div className="program-entry-block">
                                             <p className="program-entry-label">Program</p>
-                                            <p className="program-entry-text">{program.major}</p>
+                                            <p className="program-entry-text program-entry-text--bold">{program.major}</p>
                                         </div>
                                         <div className="program-entry-block">
                                             <p className="program-entry-label">Degree / Certificate</p>
                                             <ul className="degree-list">
                                                 {program.degrees.map((degree, index) => (
-                                                    <li key={index} className="program-entry-link">
+                                                    <li key={index} className="program-entry-text program-entry-text--bold">
                                                         {degree.name}
                                                         {/* <a href={degree.url} target="_blank" rel="noopener noreferrer">
                                                             {degree.name}
@@ -390,19 +390,21 @@ export default function View() {
                                                 ))}
                                             </ul>
                                         </div>
-                                        <div className="program-entry-block">
-                                            <p className="program-entry-label">Concentrations</p>
-                                            <ul className="concentration-list">
-                                                {program.concentrations.map((concentration, index) => (
-                                                    <li key={index} className="program-entry-text">
-                                                        {concentration.name}{' '}
-                                                        {concentration.online && (
-                                                            <span className="online-tag">Online</span>
-                                                        )}
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        </div>
+                                        {program.concentrations.length > 0 && (
+                                            <div className="program-entry-block">
+                                                <p className="program-entry-label">Concentrations</p>
+                                                <ul className="concentration-list">
+                                                    {program.concentrations.map((concentration, index) => (
+                                                        <li key={index} className="program-entry-text">
+                                                            {concentration.name}{' '}
+                                                            {concentration.online && (
+                                                                <span className="online-tag">Online</span>
+                                                            )}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </>
