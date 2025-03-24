@@ -12,6 +12,7 @@ export default function View() {
     const [pagesLoaded, setPagesLoaded] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [isBackToVisible, setIsBackToVisible] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
     const observer = useRef(null);
     const fetchController = useRef(null);
@@ -213,6 +214,22 @@ export default function View() {
 
     }, [collegeFilter, collegeMap]);
 
+    useEffect(() => {
+        const toggleVisibility = () => {
+          setIsBackToVisible(window.scrollY > 600);
+        };
+        
+        window.addEventListener("scroll", toggleVisibility);
+        return () => window.removeEventListener("scroll", toggleVisibility);
+      }, []);
+    
+      const scrollToElement = () => {
+        const element = document.getElementById("filters");
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+
     const handleFilterChange = (key, value, setter) => {
         // Update filters for fetch and display
         setter(value);
@@ -257,6 +274,14 @@ export default function View() {
         return (
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+            </svg>
+        );
+    };
+
+    const ChevronUpIcon = () => {
+        return (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708z"/>
             </svg>
         );
     };
@@ -332,7 +357,7 @@ export default function View() {
                             <h2 className="programs-filters-heading">Degree / Certificate</h2>
                             <h2 className="programs-filters-heading">
                                 Concentration
-                                <TooltipEl title="Default title" id="t-1">
+                                <TooltipEl title="Tooltip text goes here. It can be multiple lines long if it has to be." id="t-1">
                                     <InfoIcon />
                                 </TooltipEl>
                             </h2>
@@ -385,6 +410,11 @@ export default function View() {
                         <div id="load-more-trigger"></div>
                         <div style={{ display: "none" }}></div>
                         {loadingMore && displayPlaceholders(5)}
+                        {isBackToVisible && (
+                            <button className="programs-back-to-element" onClick={scrollToElement}>
+                                <ChevronUpIcon />
+                            </button>
+                        )}
                     </div>
                 </div>
             </section>
