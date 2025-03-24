@@ -28,7 +28,7 @@ export default function View() {
     const [collegeMap, setCollegeMap] = useState([]);
 
     // Possibly replace with default Bootstrap from UTKWDS
-    const TooltipEL = ({ id, children, title }) => (
+    const TooltipEl = ({ id, children, title }) => (
         <OverlayTrigger overlay={<Tooltip id={id}>{title}</Tooltip>}>
             <span>{children}</span>
         </OverlayTrigger>
