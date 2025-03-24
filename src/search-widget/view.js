@@ -48,6 +48,7 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
                                 type="text" 
                                 onChange={(e) => setSearchValue(e.target.value)} 
                                 value={searchValue} 
+                                placeholder='...'
                             />
                         </FloatingLabel>
                         <Button variant="outline-secondary" id="button-addon2" type="submit">
@@ -72,8 +73,8 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
     );
 }
 
-// Get the container and read the `data-area` attribute
-const container = document.getElementById('search-widget');
+// Get the container and read the `data-area` and `data-url` attributes
+const container = document.getElementById('degree-search-widget');
 const areaOfStudy = container.getAttribute('data-area') || '';
 const degreeSearchUrl = container.getAttribute('data-url') || '';
 

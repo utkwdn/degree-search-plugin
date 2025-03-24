@@ -38,7 +38,7 @@ export default function Edit({ attributes, setAttributes }) {
     }, []);
 
     return (
-        <>
+        <div {...useBlockProps()}>
             <InspectorControls>
                 <PanelBody title={__('Block Settings', 'degree-search-widget')} initialOpen={true}>
                     {loadingAreas ? (
@@ -65,37 +65,44 @@ export default function Edit({ attributes, setAttributes }) {
                 </PanelBody>
             </InspectorControls>
 
-            <section {...useBlockProps()} className="areasContainer alignfull" id="search-widget">
-				<div>
+            <div id="degree-search-widget">
+                <div>
 					<section className="searchContainer">
-						<form className="">
-							<div className="mb-3 input-group">
-								<div className="form-floating">
-									<input type="text" id="floatingInput" className="form-control" value="" />
-									<label for="floatingInput">Find your program</label>
-								</div>
-								<button type="submit" id="button-addon2" className="btn btn-outline-secondary">Search</button>
+						<div className="mb-3 input-group">
+							<div className="form-floating">
+								<input placeholder="..." type="text" id="floatingInput" className="form-control" value="" />
+								<label for="floatingInput">Find your program</label>
 							</div>
-						</form>
+							<button type="button" id="button-addon2" className="btn btn-outline-secondary">Search</button>
+						</div>
 					</section>
 					<div>
 						<ul className="linkList">
-							<li><a href="http://plugins.local/degree-search/?degree_type=Undergraduate">Undergraduate</a></li>
-							<li><a href="http://plugins.local/degree-search/?degree_type=Graduate">Graduate</a></li>
-							<li><a href="http://plugins.local/degree-search/?online=true">Online</a></li>
-							<li><a href="http://plugins.local/degree-search/?degree_type=certificate">Certificate</a></li>
-							<li><a href="http://plugins.local/degree-search/">All programs</a></li>
+							<li><a href="#">Undergraduate</a></li>
+							<li><a href="#">Graduate</a></li>
+							<li><a href="#">Online</a></li>
+							<li><a href="#">Certificate</a></li>
+							<li><a href="#">All programs</a></li>
 						</ul>
 					</div>
-				</div>
-				<div style={{display:"flex", justifyContent: "space-evenly", fontSize: "medium", paddingTop: "20px", color: "#ff8200"}}>
-					<p>{attributes.areaOfStudy ? `Selected Area of Study: ${areas.find(a => a.value === attributes.areaOfStudy)?.label}` : __('Searching all AOS', 'degree-search-widget')}</p>
-					{attributes.degreeSearchPage && (
-						<p>Search Page: {pages.find((p) => p.value === attributes.degreeSearchPage)?.label}</p>
-					)}
-				</div>
-            </section>
-			
-        </>
+                </div>
+                <div className='search-widget-info'>
+					<div className={`notice ${attributes.areaOfStudy ? 'notice-success' : 'notice-warning'}`}>
+						<p><strong>
+                        {attributes.areaOfStudy
+                            ? `Selected Area of Study: ${areas.find(a => a.value === attributes.areaOfStudy)?.label}`
+                            : __('Searching all Areas of Study', 'degree-search-widget')}
+                    	</strong></p>
+					</div>
+					<div className={`notice ${attributes.degreeSearchPage ? 'notice-success' : 'notice-error'}`}>
+						<p><strong>
+							{attributes.degreeSearchPage
+								? `Search Page: ${pages.find((p) => p.value === attributes.degreeSearchPage)?.label}`
+								: __('Please choose a Degree Search Page', 'degree-search-widget')}
+						</strong></p>
+					</div>
+                </div>
+            </div>
+        </div>
     );
 }
