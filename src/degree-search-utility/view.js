@@ -13,10 +13,12 @@ export default function View() {
     const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [isBackToVisible, setIsBackToVisible] = useState(false);
+    const [isSticky, setIsSticky] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
     const observer = useRef(null);
     const fetchController = useRef(null);
     const searchTimeout = useRef(null);
+    const stickyEl = useRef(null);
 
     const [searchTerm, setSearchTerm] = useState(new URLSearchParams(window.location.search).get('search') || '');
     const [degreeTypeFilter, setDegreeTypeFilter] = useState(new URLSearchParams(window.location.search).get('degree_type') || '');
@@ -214,9 +216,10 @@ export default function View() {
 
     }, [collegeFilter, collegeMap]);
 
+    // Show back to top element
     useEffect(() => {
         const toggleVisibility = () => {
-          setIsBackToVisible(window.scrollY > 600);
+          setIsBackToVisible(window.scrollY > 1200);
         };
         
         window.addEventListener("scroll", toggleVisibility);
@@ -229,6 +232,29 @@ export default function View() {
             element.scrollIntoView({ behavior: "smooth" });
         }
     };
+
+    // set class on sticky filters
+    useEffect(() => {
+        const handleScroll = () => {
+            if (stickyEl.current) {
+                const rect = stickyEl.current.getBoundingClientRect();
+                let offset = 0;
+                
+                if (document.body.classList.contains("admin-bar")) {
+                    offset = 32;
+                }
+                
+                if (rect.top <= offset) {
+                    setIsSticky(true);
+                } else {
+                    setIsSticky(false);
+                }
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     const handleFilterChange = (key, value, setter) => {
         // Update filters for fetch and display
@@ -291,67 +317,90 @@ export default function View() {
             <div className="wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
             <section className="programs-container wp-block-group alignfull has-global-padding is-layout-constrained wp-block-group-is-layout-constrained">
                 <div className="programs-filters alignwide">
-                    <div className="programs-filters-stage">
-                        <div className="programs-filters-fields">
-                            <div className="programs-filters-field">
-                                <div class="form-floating">
-                                    <input className='form-control' aria-label="Program Search" id="program-search" name="search" type="search" value={searchTerm} onChange={(e) => handleFilterChange('search', e.target.value, setSearchTerm)} placeholder="Find a program" />
-                                    <label for="program-search">Find a Program</label>
-                                </div>
-                            </div>
-                            <div className="programs-filters-field">
-                                <div class="form-floating">
-                                    <select name="degree-type" className="form-select" id="degree-type" aria-label="Degree Type" onChange={(e) => handleFilterChange('degree_type', e.target.value, setDegreeTypeFilter)}>
-                                        <option value="">Select a Degree</option>
-                                        <option aria-label="option" value="Undergraduate" selected={degreeTypeFilter === 'Undergraduate' ? true : false}>Undergraduate</option>
-                                        <option aria-label="option" value="Graduate" selected={degreeTypeFilter === 'Graduate' ? true : false}>Graduate</option>
-                                        <option aria-label="option" value="Undergraduate Certificate" selected={degreeTypeFilter === 'Undergraduate Certificate' ? true : false}>Undergraduate Certificate</option>
-                                        <option aria-label="option" value="Graduate Certificate" selected={degreeTypeFilter === 'Graduate Certificate' ? true : false}>Graduate Certificate</option>
-                                    </select>
-                                    <label for="degree-type">Degree Type</label>
-                                </div>
-                            </div>
-                            <div className="programs-filters-field">
-                                <div class="form-floating">
-                                    <select name="area" className="form-select" id="area-of-study" aria-label="Area of Study" onChange={(e) => handleFilterChange('area', e.target.value, setAreaFilter)}>
-                                        <option value="">Select an Area of Study</option>
-                                        {areaMap.map((area) => (
-                                            <option key={area.id} aria-label="option" value={area.id} selected={areaFilter == area.id ? true : false}>{area.name}</option>
-                                        ))}
-                                    </select>
-                                    <label for="area-of-study">Area of Study</label>
-                                </div>
-                            </div>
-                            <div className="programs-filters-field">
-                                <div class="form-floating">
-                                    <select name="college" className="form-select" id="college" aria-label="College" onChange={(e) => handleFilterChange('college', e.target.value, setCollegeFilter)}>
-                                        <option value="">Select a College</option>
-                                        {collegeMap.map((college) => (
-                                            <option key={college.id} aria-label="option" value={college.id} selected={collegeFilter == college.id ? true : false}>{college.name}</option>
-                                        ))}
-                                    </select>
-                                    <label for="college">College</label>
-                                </div>
-                            </div>
-                            <div className="programs-filters-field">
-                                <Form.Check
-                                    type="switch"
-                                    id="custom-switch"
-                                    label="Online"
-                                    checked={onlineFilter === 'true'} // Ensure it reflects the current state
-                                    onChange={() => handleFilterChange('online', onlineFilter ? '' : 'true', setOnlineFilter)}
-                                />
+                    <div className="programs-filters-fields">
+                        <div className="programs-filters-field">
+                            <div class="form-floating">
+                                <input className='form-control' aria-label="Program Search" id="program-search" name="search" type="search" value={searchTerm} onChange={(e) => handleFilterChange('search', e.target.value, setSearchTerm)} placeholder="Find a program" />
+                                <label for="program-search">Find a Program</label>
                             </div>
                         </div>
-                        <div className="programs-filters-chips">
-                            {searchTerm.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>{searchTerm} <CloseIcon /></div> : ''}
-                            {degreeTypeFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>{degreeTypeFilter} <CloseIcon /></div> : ''}
-                            {areaFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>{areaFilterName} <CloseIcon /></div> : ''}
-                            {collegeFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>{collegeFilterName} <CloseIcon /></div> : ''}
-                            {onlineFilter.length > 0 ? <div className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>Online <CloseIcon /></div> : ''}
+                        <div className="programs-filters-field">
+                            <div class="form-floating">
+                                <select name="degree-type" className="form-select" id="degree-type" aria-label="Degree Type" onChange={(e) => handleFilterChange('degree_type', e.target.value, setDegreeTypeFilter)}>
+                                    <option value="">Select a Degree</option>
+                                    <option aria-label="option" value="Undergraduate" selected={degreeTypeFilter === 'Undergraduate' ? true : false}>Undergraduate</option>
+                                    <option aria-label="option" value="Graduate" selected={degreeTypeFilter === 'Graduate' ? true : false}>Graduate</option>
+                                    <option aria-label="option" value="Undergraduate Certificate" selected={degreeTypeFilter === 'Undergraduate Certificate' ? true : false}>Undergraduate Certificate</option>
+                                    <option aria-label="option" value="Graduate Certificate" selected={degreeTypeFilter === 'Graduate Certificate' ? true : false}>Graduate Certificate</option>
+                                </select>
+                                <label for="degree-type">Degree Type</label>
+                            </div>
+                        </div>
+                        <div className="programs-filters-field">
+                            <div class="form-floating">
+                                <select name="area" className="form-select" id="area-of-study" aria-label="Area of Study" onChange={(e) => handleFilterChange('area', e.target.value, setAreaFilter)}>
+                                    <option value="">Select an Area of Study</option>
+                                    {areaMap.map((area) => (
+                                        <option key={area.id} aria-label="option" value={area.id} selected={areaFilter == area.id ? true : false}>{area.name}</option>
+                                    ))}
+                                </select>
+                                <label for="area-of-study">Area of Study</label>
+                            </div>
+                        </div>
+                        <div className="programs-filters-field">
+                            <div class="form-floating">
+                                <select name="college" className="form-select" id="college" aria-label="College" onChange={(e) => handleFilterChange('college', e.target.value, setCollegeFilter)}>
+                                    <option value="">Select a College</option>
+                                    {collegeMap.map((college) => (
+                                        <option key={college.id} aria-label="option" value={college.id} selected={collegeFilter == college.id ? true : false}>{college.name}</option>
+                                    ))}
+                                </select>
+                                <label for="college">College</label>
+                            </div>
+                        </div>
+                        <div className="programs-filters-field">
+                            <Form.Check
+                                type="switch"
+                                id="custom-switch"
+                                label="Online"
+                                checked={onlineFilter === 'true'} // Ensure it reflects the current state
+                                onChange={() => handleFilterChange('online', onlineFilter ? '' : 'true', setOnlineFilter)}
+                            />
                         </div>
                     </div>
-                    <div className="programs-filters-results" id="program-results">
+                    <div
+                        ref={stickyEl}
+                        className={`programs-filters-sticky${isSticky ? " programs-filters-sticky--stuck" : ""}`}
+                    >
+                        {(searchTerm.length > 0 || degreeTypeFilter.length > 0 || areaFilter.length > 0 || collegeFilter.length > 0 || onlineFilter.length > 0) && (
+                            <div className="programs-filters-chips">
+                                {searchTerm.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>
+                                        {searchTerm} <CloseIcon />
+                                    </div>
+                                )}
+                                {degreeTypeFilter.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>
+                                        {degreeTypeFilter} <CloseIcon />
+                                    </div>
+                                )}
+                                {areaFilter.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>
+                                        {areaFilterName} <CloseIcon />
+                                    </div>
+                                )}
+                                {collegeFilter.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>
+                                        {collegeFilterName} <CloseIcon />
+                                    </div>
+                                )}
+                                {onlineFilter.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>
+                                        Online <CloseIcon />
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <div className="programs-filters-headings">
                             <h2 className="programs-filters-heading">Program</h2>
                             <h2 className="programs-filters-heading">Degree / Certificate</h2>
@@ -362,6 +411,8 @@ export default function View() {
                                 </TooltipEl>
                             </h2>
                         </div>
+                    </div>
+                    <div className="programs-filters-results" id="program-results">
                         {isLoading ? (
                             displayPlaceholders(7)
                         ) : programs.length === 0 && !isLoading ? (

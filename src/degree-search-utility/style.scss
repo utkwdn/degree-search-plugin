@@ -23,6 +23,7 @@ label {
 
 select.form-select {
   font-weight: 500;
+  color: inherit;
 }
 
 .utkwds-orange-bar-texture {
@@ -38,26 +39,39 @@ select.form-select {
   }
 }
 
+// not sure why the !important is needed, but it doesn't work without it
 .programs-filters {
-  
-}
-
-.programs-filters-stage {
-  margin-top: -7.5rem;
-  padding: 1.25rem 1.25rem 0;
+  margin-top: -120px !important;
   background: #fff;
 }
 
 @media screen and (min-width: 960px) {
-  .programs-filters-stage {
-    padding: 1.875rem 1.875rem 0;
+  .programs-filters-sticky {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #fff;
+    
+    .admin-bar & {
+      top: 32px;
+    }
+
+    &.programs-filters-sticky--stuck {
+      .programs-filters-headings {
+        padding-top: 20px;
+        transition: padding 200ms;
+      }
+    }
   }
 }
 
 .programs-filters-fields {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
+  padding: 30px 30px 0;
+  z-index: 2;
 }
 
 @media screen and (min-width: 960px) {
@@ -100,14 +114,13 @@ select.form-select {
 
 .programs-filters-results {
   position: relative;
-  margin-right: calc(var(--wp--style--root--padding-right) * -1);
-  margin-bottom: 1.5rem;
-  margin-left: calc(var(--wp--style--root--padding-left) * -1);
+  margin: 40px calc(var(--wp--style--root--padding-right) * -1) 30px calc(var(--wp--style--root--padding-left) * -1);
   border-top: 1px solid #d9d9d9;
 }
 
 @media screen and (min-width: 960px) {
   .programs-filters-results {
+    margin: 0;
     padding: 0 0 3rem;
     border-top: none;
   }
@@ -132,7 +145,7 @@ select.form-select {
   /* Substitute for $utsmokey */
   background-color: #e8e8e8;
   border: 1px solid #d9d9d9;
-  border-radius: 20px;
+  border-radius: 4px;
 }
 
 .program-entry:nth-child(even) {
@@ -145,8 +158,7 @@ select.form-select {
   grid-row-gap: 1rem;
   justify-items: start;
   align-items: start;
-  margin: 0;
-  padding: 1rem 1.875rem;
+  padding: 40px 30px 20px;
   border-bottom: 4px solid #FF8200;
 }
 
@@ -282,14 +294,19 @@ h2.programs-filters-heading {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 20px auto;
+  margin: 0 auto 10px;
+  padding: 20px 30px 0;
 }
 
-@media screen and (min-width: 960px) {
-  .programs-filters-chips {
-    min-height: 32px;
-  }
+.programs-filters-chips + .programs-filters-headings {
+  padding-top: 20px;
 }
+
+// @media screen and (min-width: 960px) {
+//   .programs-filters-chips {
+//     min-height: 32px;
+//   }
+// }
 
 .programs-filters-chip {
   display: flex;
@@ -300,8 +317,17 @@ h2.programs-filters-heading {
   font-size: 0.813rem;
   border-radius: 20px;
   color: #fff;
-  background: #4b4b4b;
-  
+  background-color: #1a73c5;
+
+  &:hover {
+    background: #0056a5;
+    cursor: pointer;
+
+    span {
+      color: #000;
+    }
+  }
+
   span {
     background: #fff;
     color: #4b4b4b;
@@ -310,15 +336,6 @@ h2.programs-filters-heading {
     margin-left: 5px;
     font-size: 0.8rem;
     vertical-align: text-bottom;
-  }
-
-  &:hover {
-    background: #616161;
-    cursor: pointer;
-
-    span {
-      color: #000;
-    }
   }
 }
 
