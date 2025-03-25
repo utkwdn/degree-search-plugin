@@ -47,7 +47,7 @@ select.form-select {
 
 @media screen and (min-width: 960px) {
   .programs-filters-sticky {
-    position: sticky;
+    // position: sticky;
     top: 0;
     z-index: 1;
     background: #fff;
@@ -57,9 +57,10 @@ select.form-select {
     }
 
     &.programs-filters-sticky--stuck {
+      position: sticky;
+
       .programs-filters-headings {
         padding-top: 20px;
-        transition: padding 200ms;
       }
     }
   }
@@ -160,6 +161,7 @@ select.form-select {
   align-items: start;
   padding: 40px 30px 20px;
   border-bottom: 4px solid #FF8200;
+  transition: padding 200ms;
 }
 
 @media screen and (min-width: 960px) {
