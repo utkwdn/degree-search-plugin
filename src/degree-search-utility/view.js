@@ -30,9 +30,8 @@ export default function View() {
     const [areaMap, setAreaMap] = useState([]);
     const [collegeMap, setCollegeMap] = useState([]);
 
-    // Possibly replace with default Bootstrap from UTKWDS
     const TooltipEl = ({ id, children, title }) => (
-        <OverlayTrigger overlay={<Tooltip id={id}>{title}</Tooltip>}>
+        <OverlayTrigger placement={isSticky ? "bottom" : "top"} overlay={<Tooltip id={id}>{title}</Tooltip>}>
             <span className="tooltip-icon">{children}</span>
         </OverlayTrigger>
     );
