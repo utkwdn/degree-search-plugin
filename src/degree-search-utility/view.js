@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import Placeholder from 'react-bootstrap/Placeholder';
 import Form from 'react-bootstrap/Form';
-import '../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 export default function View() {
     const [programs, setPrograms] = useState([]);
@@ -11,10 +12,13 @@ export default function View() {
     const [pagesLoaded, setPagesLoaded] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [isBackToVisible, setIsBackToVisible] = useState(false);
+    const [isSticky, setIsSticky] = useState(false);
     const [loadingMore, setLoadingMore] = useState(false);
     const observer = useRef(null);
     const fetchController = useRef(null);
     const searchTimeout = useRef(null);
+    const stickyEl = useRef(null);
 
     const [searchTerm, setSearchTerm] = useState(new URLSearchParams(window.location.search).get('search') || '');
     const [degreeTypeFilter, setDegreeTypeFilter] = useState(new URLSearchParams(window.location.search).get('degree_type') || '');
@@ -25,7 +29,12 @@ export default function View() {
     const [onlineFilter, setOnlineFilter] = useState(new URLSearchParams(window.location.search).get('online') || '');
     const [areaMap, setAreaMap] = useState([]);
     const [collegeMap, setCollegeMap] = useState([]);
-    
+
+    const TooltipEl = ({ id, children, title }) => (
+        <OverlayTrigger placement={isSticky ? "bottom" : "top"} overlay={<Tooltip id={id}>{title}</Tooltip>}>
+            <span className="tooltip-icon">{children}</span>
+        </OverlayTrigger>
+    );
 
     const fetchPrograms = (page = 1, append = false, signal) => {
         setIsLoading(page === 1);
@@ -57,7 +66,7 @@ export default function View() {
                 const formattedPrograms = data.map((program) => {
                     // Extract Major Name
                     const major = program.title.rendered;
-    
+
                     // Extract Degrees
                     const degrees = program._embedded?.["wp:term"]
                         ?.flat()
@@ -68,7 +77,7 @@ export default function View() {
                             type: degree.acf?.["degree_type"] || "",
                             url: program.acf?.["program-url"] || ""
                         })) || [];
-    
+
                     // Extract Concentrations
                     const concentrations = program._embedded?.["wp:term"]
                         ?.flat()
@@ -78,14 +87,14 @@ export default function View() {
                             name: concentration.name.replace(' (Online)', ''),
                             online: concentration.acf?.online ?? false
                         })) || [];
-    
+
                     return {
                         id: program.id,
                         major,
                         degrees,
                         concentrations,
                     };
-                    
+
                 });
                 setPrograms(prev => append ? [...prev, ...formattedPrograms] : formattedPrograms);
             })
@@ -117,7 +126,7 @@ export default function View() {
 
             setPagesLoaded(1);
             fetchPrograms(1, false, signal);
-            
+
         }, 500);
 
         return () => {
@@ -127,7 +136,7 @@ export default function View() {
             }
 
             // Abort fetch on dependency change
-            fetchController.current?.abort(); 
+            fetchController.current?.abort();
         };
     }, [searchTerm, degreeTypeFilter, areaFilter, collegeFilter, onlineFilter]);
 
@@ -161,8 +170,8 @@ export default function View() {
             .then((data) => {
                 if (Array.isArray(data)) {
                     const formattedAreas = data.map(area => ({
-                        name: area.name, 
-                        id: area.id, 
+                        name: area.name,
+                        id: area.id,
                     }));
                     setAreaMap(formattedAreas);
                 } else {
@@ -176,8 +185,8 @@ export default function View() {
             .then((data) => {
                 if (Array.isArray(data)) {
                     const formattedColleges = data.map(college => ({
-                        name: college.name, 
-                        id: college.id, 
+                        name: college.name,
+                        id: college.id,
                     }));
                     setCollegeMap(formattedColleges);
                 } else {
@@ -191,7 +200,7 @@ export default function View() {
     // Match area ID with name for filter chips
     useEffect(() => {
         const match = areaMap.find(obj => obj.id === parseInt(areaFilter));
-        if(match && match.name) {
+        if (match && match.name) {
             setAreaFilterName(match.name);
         }
 
@@ -200,11 +209,51 @@ export default function View() {
     // Match college ID with name for filter chips
     useEffect(() => {
         const match = collegeMap.find(obj => obj.id === parseInt(collegeFilter));
-        if(match && match.name) {
+        if (match && match.name) {
             setCollegeFilterName(match.name);
         }
 
     }, [collegeFilter, collegeMap]);
+
+    // Show back to top element
+    useEffect(() => {
+        const toggleVisibility = () => {
+            setIsBackToVisible(window.scrollY > 1200);
+        };
+
+        window.addEventListener("scroll", toggleVisibility);
+        return () => window.removeEventListener("scroll", toggleVisibility);
+    }, []);
+
+    const scrollToElement = () => {
+        const element = document.getElementById("filters");
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+        }
+    };
+
+    // set class on sticky filters
+    useEffect(() => {
+        const handleScroll = () => {
+            if (stickyEl.current) {
+                const rect = stickyEl.current.getBoundingClientRect();
+                let offset = 0;
+
+                if (document.body.classList.contains("admin-bar")) {
+                    offset = 32;
+                }
+
+                if (rect.top <= offset) {
+                    setIsSticky(true);
+                } else {
+                    setIsSticky(false);
+                }
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     const handleFilterChange = (key, value, setter) => {
         // Update filters for fetch and display
@@ -228,78 +277,141 @@ export default function View() {
         return (
             <>
                 {Array.from({ length: numItems }).map((_, index) => (
-                    <li key={index} className="programEntry">
+                    <div key={index} className="program-entry">
                         {Array.from({ length: 3 }).map((_, subIndex) => (
-                            <ol key={subIndex} className="concentrationList"><Placeholder as="li" animation="glow"><Placeholder xs={12} size="lg" /></Placeholder></ol>
+                            <ul key={subIndex} className="placeholder-list"><Placeholder as="li" animation="glow"><Placeholder xs={12} size="lg" /></Placeholder></ul>
                         ))}
-                    </li>
+                    </div>
                 ))}
             </>
         );
     };
 
+    const CloseIcon = () => {
+        return (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293z" />
+            </svg>
+        );
+    };
+
+    const InfoIcon = () => {
+        return (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2" />
+            </svg>
+        );
+    };
+
+    const ChevronUpIcon = () => {
+        return (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path fill-rule="evenodd" d="M7.646 4.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1-.708.708L8 5.707l-5.646 5.647a.5.5 0 0 1-.708-.708z" />
+            </svg>
+        );
+    };
+
     return (
-        <section className="areasContainer alignfull" id="filters">
-            <div id="filters-form">
-                <section className="searchNavContainer">
-                    <input aria-label="Program Search" id="program-search" name="search" type="search" value={searchTerm} onChange={(e) => handleFilterChange('search', e.target.value, setSearchTerm)} placeholder="Find a program" />
-                        <div className="select">
-                            <select name="degree-type" className="dropdown" id="degree-type" aria-label="Degree Type" onChange={(e) => handleFilterChange('degree_type', e.target.value, setDegreeTypeFilter)}>
-                                <option value="">Degree type</option>
-                                <option aria-label="option" value="Undergraduate" selected={degreeTypeFilter === 'Undergraduate' ? true : false}>Undergraduate</option>
-                                <option aria-label="option" value="Graduate" selected={degreeTypeFilter === 'Graduate' ? true : false}>Graduate</option>
-                                <option aria-label="option" value="Undergraduate Certificate" selected={degreeTypeFilter === 'Undergraduate Certificate' ? true : false}>Undergraduate Certificate</option>
-                                <option aria-label="option" value="Graduate Certificate" selected={degreeTypeFilter === 'Graduate Certificate' ? true : false}>Graduate Certificate</option>
-                            </select>
+        <>
+            <div className="wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
+            <section className="programs-container wp-block-group alignfull has-global-padding is-layout-constrained wp-block-group-is-layout-constrained">
+                <div className="programs-filters alignwide">
+                    <div className="programs-filters-fields">
+                        <div className="programs-filters-field">
+                            <div class="form-floating">
+                                <input className="form-control" aria-label="Program Search" id="program-search" name="search" type="search" value={searchTerm} onChange={(e) => handleFilterChange('search', e.target.value, setSearchTerm)} placeholder="Find a program" />
+                                <label for="program-search">Find a Program</label>
+                            </div>
                         </div>
-                        <div className="select">
-                            <select name="area" className="dropdown" id="area-of-study" aria-label="Area of Study" onChange={(e) => handleFilterChange('area', e.target.value, setAreaFilter)}>
-                                <option value="">Area of study</option>
-                                {areaMap.map((area) => (
-                                    <option key={area.id} aria-label="option" value={area.id} selected={areaFilter == area.id ? true : false}>{area.name}</option>
-                                ))}
-                            </select>
+                        <div className="programs-filters-field">
+                            <div class="form-floating">
+                                <select name="degree-type" className="form-select" id="degree-type" aria-label="Degree Type" onChange={(e) => handleFilterChange('degree_type', e.target.value, setDegreeTypeFilter)}>
+                                    <option value="">Select a Degree</option>
+                                    <option aria-label="option" value="Undergraduate" selected={degreeTypeFilter === 'Undergraduate' ? true : false}>Undergraduate</option>
+                                    <option aria-label="option" value="Graduate" selected={degreeTypeFilter === 'Graduate' ? true : false}>Graduate</option>
+                                    <option aria-label="option" value="Undergraduate Certificate" selected={degreeTypeFilter === 'Undergraduate Certificate' ? true : false}>Undergraduate Certificate</option>
+                                    <option aria-label="option" value="Graduate Certificate" selected={degreeTypeFilter === 'Graduate Certificate' ? true : false}>Graduate Certificate</option>
+                                </select>
+                                <label for="degree-type">Degree Type</label>
+                            </div>
                         </div>
-                        <div className="select">
-                            <select name="college" className="dropdown" id="college" aria-label="College" onChange={(e) => handleFilterChange('college', e.target.value, setCollegeFilter)}>
-                                <option value="">College</option>
-                                {collegeMap.map((college) => (
-                                    <option key={college.id} aria-label="option" value={college.id} selected={collegeFilter == college.id ? true : false}>{college.name}</option>
-                                ))}
-                            </select>
+                        <div className="programs-filters-field">
+                            <div class="form-floating">
+                                <select name="area" className="form-select" id="area-of-study" aria-label="Area of Study" onChange={(e) => handleFilterChange('area', e.target.value, setAreaFilter)}>
+                                    <option value="">Select an Area of Study</option>
+                                    {areaMap.map((area) => (
+                                        <option key={area.id} aria-label="option" value={area.id} selected={areaFilter == area.id ? true : false}>{area.name}</option>
+                                    ))}
+                                </select>
+                                <label for="area-of-study">Area of Study</label>
+                            </div>
                         </div>
-                        <Form.Check
-                            type="switch"
-                            id="custom-switch"
-                            label="Online"
-                            checked={onlineFilter === 'true'} // Ensure it reflects the current state
-                            onChange={() => handleFilterChange('online', onlineFilter ? '' : 'true', setOnlineFilter)} 
-                        />
-                    <section className="filtersSection"></section>
-                </section>
-            </div>
-            <div id="filterChips">
-                {searchTerm.length > 0 ? <div className='filterChip' onClick={() => handleFilterChange('search', '', setSearchTerm)}>{searchTerm} <span>x</span></div> : ''}
-                {degreeTypeFilter.length > 0 ? <div className='filterChip' onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>{degreeTypeFilter} <span>x</span></div> : ''}
-                {areaFilter.length > 0 ? <div className='filterChip' onClick={() => handleFilterChange('area', '', setAreaFilter)}>{areaFilterName} <span>x</span></div> : ''}
-                {collegeFilter.length > 0 ? <div className='filterChip' onClick={() => handleFilterChange('college', '', setCollegeFilter)}>{collegeFilterName} <span>x</span></div> : ''}
-                {onlineFilter.length > 0 ? <div className='filterChip' onClick={() => handleFilterChange('online', '', setOnlineFilter)}>Online<span>x</span></div> : ''}
-            </div>
-            <section className="resultsSection">
-                
-                    <ol className="programGrid" id="program-results">
-                        <li className="labelContainer">
-                            <h2 className="programLabel">Program</h2>
-                            <h2 className="programLabel">Degree / Certificate</h2>
-                            <h2 className="programLabel">
+                        <div className="programs-filters-field">
+                            <div class="form-floating">
+                                <select name="college" className="form-select" id="college" aria-label="College" onChange={(e) => handleFilterChange('college', e.target.value, setCollegeFilter)}>
+                                    <option value="">Select a College</option>
+                                    {collegeMap.map((college) => (
+                                        <option key={college.id} aria-label="option" value={college.id} selected={collegeFilter == college.id ? true : false}>{college.name}</option>
+                                    ))}
+                                </select>
+                                <label for="college">College</label>
+                            </div>
+                        </div>
+                        <div className="programs-filters-field">
+                            <Form.Check
+                                type="switch"
+                                id="custom-switch"
+                                label="Online"
+                                checked={onlineFilter === 'true'} // Ensure it reflects the current state
+                                onChange={() => handleFilterChange('online', onlineFilter ? '' : 'true', setOnlineFilter)}
+                            />
+                        </div>
+                    </div>
+                    <div
+                        ref={stickyEl}
+                        className={`programs-filters-sticky${isSticky ? " programs-filters-sticky--stuck" : ""}`}
+                    >
+                        {(searchTerm.length > 0 || degreeTypeFilter.length > 0 || areaFilter.length > 0 || collegeFilter.length > 0 || onlineFilter.length > 0) && (
+                            <div className="programs-filters-chips">
+                                {searchTerm.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>
+                                        <span>{searchTerm}</span> <CloseIcon />
+                                    </div>
+                                )}
+                                {degreeTypeFilter.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>
+                                        <span>{degreeTypeFilter}</span> <CloseIcon />
+                                    </div>
+                                )}
+                                {areaFilter.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>
+                                        <span>{areaFilterName}</span> <CloseIcon />
+                                    </div>
+                                )}
+                                {collegeFilter.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>
+                                        <span>{collegeFilterName}</span> <CloseIcon />
+                                    </div>
+                                )}
+                                {onlineFilter.length > 0 && (
+                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>
+                                        <span>Online</span> <CloseIcon />
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        <div className="programs-filters-headings">
+                            <h2 className="programs-filters-heading">Program</h2>
+                            <h2 className="programs-filters-heading">Degree / Certificate</h2>
+                            <h2 className="programs-filters-heading">
                                 Concentration
-                                <span className="toolTip" tabIndex="0">
-                                    <span className="messageConcentratation">
-                                        <p>Some programs may not offer concentrations while others may require them.</p>
-                                    </span>
-                                </span>
+                                <TooltipEl title="Tooltip text goes here. It can be multiple lines long if it has to be." id="t-1">
+                                    <InfoIcon />
+                                </TooltipEl>
                             </h2>
-                        </li>
+                        </div>
+                    </div>
+                    <div className="programs-filters-results" id="program-results">
                         {isLoading ? (
                             displayPlaceholders(7)
                         ) : programs.length === 0 && !isLoading ? (
@@ -309,41 +421,56 @@ export default function View() {
                             </div>
                         ) : (
                             <>
-                            {programs.map((program) => (
-                                <li key={program.id} className="programEntry">
-                                    <div className="programName">
-                                        <p>{program.major}</p>
+                                {programs.map((program) => (
+                                    <div key={program.id} className="program-entry">
+                                        <div className="program-entry-block">
+                                            <p className="program-entry-label">Program</p>
+                                            <p className="program-entry-text program-entry-text--bold">{program.major}</p>
+                                        </div>
+                                        <div className="program-entry-block">
+                                            <p className="program-entry-label">Degree / Certificate</p>
+                                            <ul className="degree-list">
+                                                {program.degrees.map((degree, index) => (
+                                                    <li key={index} className="program-entry-text program-entry-text--bold">
+                                                        {degree.name}
+                                                        {/* <a href={degree.url} target="_blank" rel="noopener noreferrer">
+                                                            {degree.name}
+                                                        </a> */}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        {program.concentrations.length > 0 && (
+                                            <div className="program-entry-block">
+                                                <p className="program-entry-label">Concentrations</p>
+                                                <ul className="concentration-list">
+                                                    {program.concentrations.map((concentration, index) => (
+                                                        <li key={index} className="program-entry-text">
+                                                            {concentration.name}{' '}
+                                                            {concentration.online && (
+                                                                <span className="online-tag">Online</span>
+                                                            )}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
-                                    <ol className="degreeList">
-                                        {program.degrees.map((degree, index) => (
-                                            <li key={index}>
-                                                {degree.name}
-                                                {/* <a href={degree.url} target="_blank" rel="noopener noreferrer">
-                                                    {degree.name}
-                                                </a> */}
-                                            </li>
-                                        ))}
-                                    </ol>
-                                    <ol className="concentrationList">
-                                        {program.concentrations.map((concentration, index) => (
-                                            <li key={index}>
-                                                {concentration.name}{' '}
-                                                {concentration.online && (
-                                                    <span className="onlineTag">Online</span>
-                                                )}
-                                            </li>
-                                        ))}
-                                    </ol>
-                                </li>
-                            ))}
+                                ))}
                             </>
                         )}
-                        <div id="load-more-trigger" style={{ gridColumn: '1 / 4' }}></div>
+                        <div id="load-more-trigger"></div>
                         <div style={{ display: "none" }}></div>
-                        {loadingMore && displayPlaceholders(5) }
-                    </ol>
+                        {loadingMore && displayPlaceholders(5)}
+                        {isBackToVisible && (
+                            <button className="programs-back-to-element" onClick={scrollToElement}>
+                                <ChevronUpIcon />
+                            </button>
+                        )}
+                    </div>
+                </div>
             </section>
-        </section>
+        </>
     );
 }
 

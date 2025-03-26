@@ -59,51 +59,90 @@ export default function Edit() {
 	];
 
 	return (
-		<section { ...useBlockProps() } className="areasContainer alignfull" id="filters">
-			{ __(
-			<section className="resultsSection">
-				<ol className="programGrid" id="program-results">
-					<li className="labelContainer">
-						<h2 className="programLabel">Program</h2>
-						<h2 className="programLabel">Degree / Certificate</h2>
-						<h2 className="programLabel">
-							Concentration
-							<span className="toolTip" tabIndex="0">
-								<span className="messageConcentratation">
-									<p>Some programs may not offer concentrations while others may require them.</p>
-								</span>
-							</span>
-						</h2>
-					</li>
-					{programData.map((program) => (
-						<li key={program.id} className="programEntry">
-							<div className="programName">
-                                <p>{program.major}</p>
-                            </div>
-							<ol className="degreeList">
-								{program.degrees.map((degree, index) => (
-									<li key={index}>
-										<a href={degree.url} target="_blank" rel="noopener noreferrer">
-											{degree.name}
-										</a>
-									</li>
-								))}
-							</ol>
-							<ol className="concentrationList">
-								{program.concentrations.map((concentration, index) => (
-									<li key={index}>
-										{concentration.name}{' '}
-										{concentration.online && (
-											<span className="onlineTag">Online</span>
-										)}
-									</li>
-								))}
-							</ol>
-						</li>
-					))}
-				</ol>
+		<>
+			<div className="wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
+			<section { ...useBlockProps() } className="programs-filters alignwide" id="filters">
+				{ __(
+					<>
+						<div className="programs-filters-fields">
+							<div className="programs-filters-field">
+								<div class="form-floating">
+									<input className='form-control' aria-label="Program Search" id="program-search" name="search" type="search" placeholder="Find a program" />
+									<label for="program-search">Find a Program</label>
+								</div>
+							</div>
+							<div className="programs-filters-field">
+								<div class="form-floating">
+									<select name="degree-type" className="form-select" id="degree-type" aria-label="Degree Type">
+										<option value="">Select a Degree</option>
+									</select>
+									<label for="degree-type">Degree Type</label>
+								</div>
+							</div>
+							<div className="programs-filters-field">
+								<div class="form-floating">
+									<select name="area" className="form-select" id="area-of-study" aria-label="Area of Study">
+										<option value="">Select an Area of Study</option>
+									</select>
+									<label for="area-of-study">Area of Study</label>
+								</div>
+							</div>
+							<div className="programs-filters-field">
+								<div class="form-floating">
+									<select name="college" className="form-select" id="college" aria-label="College">
+										<option value="">Select a College</option>
+									</select>
+									<label for="college">College</label>
+								</div>
+							</div>
+							<div className="programs-filters-field">
+							<div class="form-check form-switch">
+								<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" />
+								<label class="form-check-label" for="flexSwitchCheckDefault">Online</label>
+							</div>
+							</div>
+						</div>	
+						<div className="programs-filters-results" id="program-results">
+							<div className="programs-filters-headings">
+								<h2 className="programs-filters-heading">Program</h2>
+								<h2 className="programs-filters-heading">Degree / Certificate</h2>
+								<h2 className="programs-filters-heading">Concentration</h2>
+							</div>
+							{programData.map((program) => (
+								<div key={program.id} className="program-entry">
+									<div className="program-entry-block">
+										<p className="program-entry-label">Program</p>
+										<p className="program-entry-text program-entry-text--bold">{program.major}</p>
+									</div>
+									<div className="program-entry-block">
+										<p className="program-entry-label">Degree / Certificate</p>
+										<ul className="degree-list">
+											{program.degrees.map((degree, index) => (
+												<li key={index} className="program-entry-text program-entry-text--bold">
+													{degree.name}
+												</li>
+											))}
+										</ul>							
+									</div>
+									<div className="program-entry-block">
+										<p className="program-entry-label">Concentrations</p>
+										<ul className="concentration-list">
+											{program.concentrations.map((concentration, index) => (
+												<li key={index} className="program-entry-text">
+													{concentration.name}{' '}
+													{concentration.online && (
+														<span className="online-tag">Online</span>
+													)}
+												</li>
+											))}
+										</ul>						
+									</div>
+								</div>
+							))}
+						</div>
+					</>
+				) }
 			</section>
-			) }
-		</section>
+		</>
 	);
 }
