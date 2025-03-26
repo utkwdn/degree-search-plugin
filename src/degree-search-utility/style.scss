@@ -115,7 +115,7 @@ select.form-select {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
-  padding: 30px 30px 0;
+  padding: 30px 20px 0;
   z-index: 2;
 }
 
@@ -123,6 +123,7 @@ select.form-select {
   .programs-filters-fields {
     grid-template-columns: repeat(4, 1fr) auto;
     align-items: center;
+    padding: 30px 30px 0;
   }
 }
 
@@ -321,18 +322,18 @@ h2.programs-filters-heading {
   flex-wrap: wrap;
   gap: 10px;
   margin: 0 auto 10px;
-  padding: 20px 30px 0;
+  padding: 20px 20px 0;
+}
+
+@media screen and (min-width: 960px) {
+  .programs-filters-chips {
+    padding: 20px 30px 0;
+  }
 }
 
 .programs-filters-chips + .programs-filters-headings {
   padding-top: 20px;
 }
-
-// @media screen and (min-width: 960px) {
-//   .programs-filters-chips {
-//     min-height: 32px;
-//   }
-// }
 
 .programs-filters-chip {
   display: flex;
@@ -348,20 +349,21 @@ h2.programs-filters-heading {
   &:hover {
     background: #0056a5;
     cursor: pointer;
-
-    span {
-      color: #000;
-    }
   }
 
   span {
-    background: #fff;
-    color: #4b4b4b;
-    padding: 0 6px 2px;
-    border-radius: 50px;
-    margin-left: 5px;
-    font-size: 0.8rem;
-    vertical-align: text-bottom;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media screen and (min-width: 960px) {
+  .programs-filters-chip {
+    span {
+      max-width: 300px;
+    }
   }
 }
 

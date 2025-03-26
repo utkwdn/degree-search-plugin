@@ -375,27 +375,27 @@ export default function View() {
                             <div className="programs-filters-chips">
                                 {searchTerm.length > 0 && (
                                     <div className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>
-                                        {searchTerm} <CloseIcon />
+                                        <span>{searchTerm}</span> <CloseIcon />
                                     </div>
                                 )}
                                 {degreeTypeFilter.length > 0 && (
                                     <div className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>
-                                        {degreeTypeFilter} <CloseIcon />
+                                        <span>{degreeTypeFilter}</span> <CloseIcon />
                                     </div>
                                 )}
                                 {areaFilter.length > 0 && (
                                     <div className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>
-                                        {areaFilterName} <CloseIcon />
+                                        <span>{areaFilterName}</span> <CloseIcon />
                                     </div>
                                 )}
                                 {collegeFilter.length > 0 && (
                                     <div className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>
-                                        {collegeFilterName} <CloseIcon />
+                                        <span>{collegeFilterName}</span> <CloseIcon />
                                     </div>
                                 )}
                                 {onlineFilter.length > 0 && (
                                     <div className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>
-                                        Online <CloseIcon />
+                                        <span>Online</span> <CloseIcon />
                                     </div>
                                 )}
                             </div>
