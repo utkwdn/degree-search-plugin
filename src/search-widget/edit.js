@@ -65,26 +65,24 @@ export default function Edit({ attributes, setAttributes }) {
                 </PanelBody>
             </InspectorControls>
 
-            <div id="degree-search-widget">
-                <div>
-					<section className="searchContainer">
-						<div className="mb-3 input-group">
-							<div className="form-floating">
-								<input placeholder="..." type="text" id="floatingInput" className="form-control" value="" />
-								<label for="floatingInput">Find your program</label>
-							</div>
-							<button type="button" id="button-addon2" className="btn btn-outline-secondary">Search</button>
-						</div>
-					</section>
-					<div>
-						<ul className="linkList">
-							<li><a href="#">Undergraduate</a></li>
-							<li><a href="#">Graduate</a></li>
-							<li><a href="#">Online</a></li>
-							<li><a href="#">Certificate</a></li>
-							<li><a href="#">All programs</a></li>
-						</ul>
-					</div>
+            <section id="degree-search-widget" className="programs-search-container">
+                <div className="wp-block-search__button-outside wp-block-search__text-button wp-block-search">
+                    <div className="wp-block-search__inside-wrapper">
+                        <div className="form-floating">
+                            <input placeholder="..." type="search" id="floatingInput" className="form-control" value="" />
+                            <label for="floatingInput">Find your program</label>
+                        </div>
+                        <button type="button" className="button-submit wp-block-search__button wp-element-button">Search</button>
+                    </div>
+                </div>
+                <div className="programs-search-quick-links">
+                    <ul className="programs-search-quick-links-list">
+                        <li><a href="#">Undergraduate</a></li>
+                        <li><a href="#">Graduate</a></li>
+                        <li><a href="#">Online</a></li>
+                        <li><a href="#">Certificate</a></li>
+                        <li><a href="#">All programs</a></li>
+                    </ul>
                 </div>
                 <div className='search-widget-info'>
 					<div className={`notice ${attributes.areaOfStudy ? 'notice-success' : 'notice-warning'}`}>
@@ -102,7 +100,7 @@ export default function Edit({ attributes, setAttributes }) {
 						</strong></p>
 					</div>
                 </div>
-            </div>
+            </section>
         </div>
     );
 }

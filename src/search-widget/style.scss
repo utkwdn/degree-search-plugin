@@ -7,9 +7,22 @@
 
  @import '../common/style.scss';
 
-.linkList {
+.programs-search-quick-links {
+    margin: 20px;
+}
+ 
+.programs-search-quick-links-list {
     display: flex;
     flex-wrap: wrap;
     list-style-type: none;
-    margin-top: 1rem !important;
+    gap: 20px;
+    justify-content: center;
+
+    li {
+        margin: 0;
+
+         a {
+            font-size: var(--wp--preset--font-size--x-small);
+         }
+    }
 }

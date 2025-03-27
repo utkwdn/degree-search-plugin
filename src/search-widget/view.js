@@ -4,7 +4,6 @@ import { createRoot } from 'react-dom/client';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
 
 export default function View({ areaOfStudy, degreeSearchUrl }) {
     const [searchValue, setSearchValue] = useState('');
@@ -39,27 +38,24 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
     ];
 
     return (
-        <div>
-            <section className='searchContainer'>
-                <Form onSubmit={handleSearch}>
-                    <InputGroup className="mb-3">
-                        <FloatingLabel controlId="floatingInput" label="Find your program">
-                            <Form.Control 
-                                type="text" 
-                                onChange={(e) => setSearchValue(e.target.value)} 
-                                value={searchValue} 
-                                placeholder='...'
-                            />
-                        </FloatingLabel>
-                        <Button variant="outline-secondary" id="button-addon2" type="submit">
-                            Search
-                        </Button>
-                    </InputGroup>
-                </Form>
-            </section>
-
-            <div>
-                <ul className="linkList">
+        <section className="programs-search-container">
+            <Form onSubmit={handleSearch} className="wp-block-search__button-outside wp-block-search__text-button wp-block-search">
+                <div className="wp-block-search__inside-wrapper">
+                    <FloatingLabel controlId="floatingInput" label="Find your program">
+                        <Form.Control 
+                            type="search" 
+                            onChange={(e) => setSearchValue(e.target.value)} 
+                            value={searchValue} 
+                            placeholder='...'
+                        />
+                    </FloatingLabel>
+                    <Button className="button-submit wp-block-search__button wp-element-button" type="submit">
+                        Search
+                    </Button>
+                </div>
+            </Form>
+            <div className="programs-search-quick-links">
+                <ul className="programs-search-quick-links-list">
                     {linkItems.map(({ label, params }) => (
                         <li key={label}>
                             <a href={generateLink(degreeSearchUrl, { ...params, area: areaOfStudy, search: searchValue })}>
@@ -69,7 +65,7 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
                     ))}
                 </ul>
             </div>
-        </div>
+        </section>
     );
 }
 
