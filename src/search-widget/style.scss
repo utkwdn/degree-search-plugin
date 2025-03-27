@@ -1,0 +1,15 @@
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+ @import '../common/style.scss';
+
+.linkList {
+    display: flex;
+    flex-wrap: wrap;
+    list-style-type: none;
+    margin-top: 1rem !important;
+}

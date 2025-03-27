@@ -31,6 +31,8 @@ require_once plugin_dir_path( __FILE__ ) . 'import-settings.php';
  */
 function degree_search_utility_degree_search_utility_block_init() {
 	register_block_type( __DIR__ . '/build/degree-search-utility' );
+	register_block_type( __DIR__ . '/build/search-widget' );
+	
 }
 add_action( 'init', 'degree_search_utility_degree_search_utility_block_init' );
 
@@ -292,6 +294,9 @@ add_filter('rest_program_query', function ($args, $request) {
         }
 
         if ($degree_type) {
+			// Use 'LIKE' comparison for 'certificate to bring back both graduate and undergraduate certificates
+            $compare_operator = $degree_type === "certificate" ? 'LIKE' : '=';
+
             // Get all degree terms with the requested ACF degree_type
             $degree_terms = get_terms([
                 'taxonomy'   => 'degree',
@@ -301,7 +306,7 @@ add_filter('rest_program_query', function ($args, $request) {
                     [
                         'key'     => 'degree_type',  // ACF field key
                         'value'   => $degree_type,  // User requested value
-                        'compare' => '='
+                        'compare' => $compare_operator
                     ]
                 ]
             ]);

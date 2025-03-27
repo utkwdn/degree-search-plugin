@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "degree-search-utility/search-widget",
+	"version": "1.0.0",
+	"title": "Degree Search Widget",
+	"category": "widgets",
+	"icon": "search",
+	"description": "Display a search widget for the degree search page",
+	"example": {},
+	"supports": {
+		"html": false
+	},
+	"attributes": {
+		"areaOfStudy": {
+			"type": "string",
+			"default": ""
+		},
+		"degreeSearchPage": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"textdomain": "degree-search-widget",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"viewScript": "file:./view.js"
+}
