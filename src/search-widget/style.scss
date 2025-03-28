@@ -10,8 +10,23 @@
 .programs-search-wrap {
     display: flex;
     flex: auto;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     max-width: 100%;
+    gap: 10px;
+}
+
+.button-submit {
+    width: 100%;
+}
+
+@media screen and (min-width: 600px) {
+    .programs-search-wrap {
+        flex-wrap: nowrap;
+    }
+
+    .button-submit {
+        width: auto;
+    }
 }
 
 .programs-search-quick-links {
