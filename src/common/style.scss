@@ -36,7 +36,9 @@ select.form-select {
 
 // Update UTKWDS theme file to this padding
 .button-submit {
+    margin-left: 10px;
     padding: 0 20px !important;
+    word-break: normal;
     
     &:hover {
         color: var(--wp--preset--color--white);

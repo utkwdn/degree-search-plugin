@@ -5,7 +5,14 @@
  * Replace them with your own styles or remove the file completely.
  */
 
- @import '../common/style.scss';
+@import '../common/style.scss';
+
+.programs-search-wrap {
+    display: flex;
+    flex: auto;
+    flex-wrap: nowrap;
+    max-width: 100%;
+}
 
 .programs-search-quick-links {
     margin: 20px;

@@ -38,8 +38,8 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
 
     return (
         <div className="programs-search-container">
-            <Form onSubmit={handleSearch} className="wp-block-search__button-outside wp-block-search__text-button wp-block-search">
-                <div className="wp-block-search__inside-wrapper">
+            <Form onSubmit={handleSearch} className="programs-search-form">
+                <div className="programs-search-wrap">
                     <FloatingLabel controlId="floatingInput" label="Find your program">
                         <Form.Control 
                             type="search" 
@@ -48,7 +48,7 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
                             placeholder='...'
                         />
                     </FloatingLabel>
-                    <button type="submit" className="button-submit wp-block-search__button wp-element-button" >
+                    <button type="submit" className="wp-element-button button-submit" >
                         Search
                     </button>
                 </div>

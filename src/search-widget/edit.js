@@ -66,13 +66,13 @@ export default function Edit({ attributes, setAttributes }) {
             </InspectorControls>
 
             <div id="degree-search-widget" className="programs-search-container">
-                <div className="wp-block-search__button-outside wp-block-search__text-button wp-block-search">
-                    <div className="wp-block-search__inside-wrapper">
+                <div className="programs-search-form">
+                    <div className="programs-search-wrap">
                         <div className="form-floating">
                             <input placeholder="..." type="search" id="floatingInput" className="form-control" value="" />
                             <label for="floatingInput">Find your program</label>
                         </div>
-                        <button type="button" className="button-submit wp-block-search__button wp-element-button">Search</button>
+                        <button type="button" className="wp-element-button button-submit">Search</button>
                     </div>
                 </div>
                 <div className="programs-search-quick-links">
