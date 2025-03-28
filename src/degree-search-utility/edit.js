@@ -61,7 +61,7 @@ export default function Edit() {
 	return (
 		<>
 			<div className="wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
-			<section { ...useBlockProps() } className="programs-filters alignwide" id="filters">
+			<div { ...useBlockProps() } className="programs-filters alignwide" id="filters">
 				{ __(
 					<>
 						<div className="programs-filters-fields">
@@ -142,7 +142,7 @@ export default function Edit() {
 						</div>
 					</>
 				) }
-			</section>
+			</div>
 		</>
 	);
 }

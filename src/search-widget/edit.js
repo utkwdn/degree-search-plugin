@@ -65,7 +65,7 @@ export default function Edit({ attributes, setAttributes }) {
                 </PanelBody>
             </InspectorControls>
 
-            <section id="degree-search-widget" className="programs-search-container">
+            <div id="degree-search-widget" className="programs-search-container">
                 <div className="wp-block-search__button-outside wp-block-search__text-button wp-block-search">
                     <div className="wp-block-search__inside-wrapper">
                         <div className="form-floating">
@@ -100,7 +100,7 @@ export default function Edit({ attributes, setAttributes }) {
 						</strong></p>
 					</div>
                 </div>
-            </section>
+            </div>
         </div>
     );
 }

@@ -38,7 +38,7 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
     ];
 
     return (
-        <section className="programs-search-container">
+        <div className="programs-search-container">
             <Form onSubmit={handleSearch} className="wp-block-search__button-outside wp-block-search__text-button wp-block-search">
                 <div className="wp-block-search__inside-wrapper">
                     <FloatingLabel controlId="floatingInput" label="Find your program">
@@ -65,7 +65,7 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
                     ))}
                 </ul>
             </div>
-        </section>
+        </div>
     );
 }
 
