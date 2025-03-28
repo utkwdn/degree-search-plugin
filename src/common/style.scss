@@ -37,6 +37,12 @@ select.form-select {
 // Update UTKWDS theme file to this padding
 .button-submit {
     padding: 0 20px !important;
+    
+    &:hover {
+        color: var(--wp--preset--color--white);
+        background-color: var(--wp--custom--color--river);
+        border-color: var(--wp--custom--color--river);
+    }
 }
 
 .form-floating {

@@ -3,7 +3,6 @@ import { createRoot } from 'react-dom/client';
 
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 
 export default function View({ areaOfStudy, degreeSearchUrl }) {
     const [searchValue, setSearchValue] = useState('');
@@ -49,9 +48,9 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
                             placeholder='...'
                         />
                     </FloatingLabel>
-                    <Button className="button-submit wp-block-search__button wp-element-button" type="submit">
+                    <button type="submit" className="button-submit wp-block-search__button wp-element-button" >
                         Search
-                    </Button>
+                    </button>
                 </div>
             </Form>
             <div className="programs-search-quick-links">
