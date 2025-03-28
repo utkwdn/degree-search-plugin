@@ -5,7 +5,7 @@
 
 function degree_search_utility_render_callback() {
     
-    echo '<section class="areasContainer alignfull" id="filters"> </section>';
+    echo '<div class="areasContainer alignfull" id="filters"></div>';
 }
 
 // Output the rendered HTML

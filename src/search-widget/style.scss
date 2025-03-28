@@ -5,11 +5,46 @@
  * Replace them with your own styles or remove the file completely.
  */
 
- @import '../common/style.scss';
+@import '../common/style.scss';
 
-.linkList {
+.programs-search-wrap {
+    display: flex;
+    flex: auto;
+    flex-wrap: wrap;
+    max-width: 100%;
+    gap: 10px;
+}
+
+.button-submit {
+    width: 100%;
+}
+
+@media screen and (min-width: 600px) {
+    .programs-search-wrap {
+        flex-wrap: nowrap;
+    }
+
+    .button-submit {
+        width: auto;
+    }
+}
+
+.programs-search-quick-links {
+    margin: 20px;
+}
+ 
+.programs-search-quick-links-list {
     display: flex;
     flex-wrap: wrap;
     list-style-type: none;
-    margin-top: 1rem !important;
+    gap: 20px;
+    justify-content: center;
+
+    li {
+        margin: 0;
+
+         a {
+            font-size: var(--wp--preset--font-size--x-small);
+         }
+    }
 }

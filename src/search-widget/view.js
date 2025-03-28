@@ -3,8 +3,6 @@ import { createRoot } from 'react-dom/client';
 
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
 
 export default function View({ areaOfStudy, degreeSearchUrl }) {
     const [searchValue, setSearchValue] = useState('');
@@ -39,27 +37,24 @@ export default function View({ areaOfStudy, degreeSearchUrl }) {
     ];
 
     return (
-        <div>
-            <section className='searchContainer'>
-                <Form onSubmit={handleSearch}>
-                    <InputGroup className="mb-3">
-                        <FloatingLabel controlId="floatingInput" label="Find your program">
-                            <Form.Control 
-                                type="text" 
-                                onChange={(e) => setSearchValue(e.target.value)} 
-                                value={searchValue} 
-                                placeholder='...'
-                            />
-                        </FloatingLabel>
-                        <Button variant="outline-secondary" id="button-addon2" type="submit">
-                            Search
-                        </Button>
-                    </InputGroup>
-                </Form>
-            </section>
-
-            <div>
-                <ul className="linkList">
+        <div className="programs-search-container">
+            <Form onSubmit={handleSearch} className="programs-search-form">
+                <div className="programs-search-wrap">
+                    <FloatingLabel controlId="floatingInput" label="Find your program">
+                        <Form.Control 
+                            type="search" 
+                            onChange={(e) => setSearchValue(e.target.value)} 
+                            value={searchValue} 
+                            placeholder='...'
+                        />
+                    </FloatingLabel>
+                    <button type="submit" className="wp-element-button button-submit" >
+                        Search
+                    </button>
+                </div>
+            </Form>
+            <div className="programs-search-quick-links">
+                <ul className="programs-search-quick-links-list">
                     {linkItems.map(({ label, params }) => (
                         <li key={label}>
                             <a href={generateLink(degreeSearchUrl, { ...params, area: areaOfStudy, search: searchValue })}>

@@ -12,7 +12,7 @@ function degree_search_widget_render_callback($attributes) {
     $degree_search_url = $degree_search_page ? get_permalink($degree_search_page) : '';
 
     // Render the block container with the selected area and degree search URL as data attributes
-    return '<section id="degree-search-widget" data-area="' . $area_of_study . '" data-url="' . esc_url($degree_search_url) . '"></section>';
+    return '<div id="degree-search-widget" data-area="' . $area_of_study . '" data-url="' . esc_url($degree_search_url) . '"></div>';
 }
 
 // Output the rendered HTML
