@@ -18,9 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Post Type: Programs
+ * Include Import Settings Page
  */
-require_once plugin_dir_path( __FILE__ ) . 'import-settings.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/import-settings.php';
 
 /**
  * Registers the block using the metadata loaded from the `block.json` file.
@@ -52,8 +52,8 @@ function utk_programs_register_cpts() {
 		"label" => __( "Programs", "utk-programs" ),
 		"labels" => $labels,
 		"description" => "",
-		"public" => true,
-		"publicly_queryable" => true,
+		"public" => false,
+		"publicly_queryable" => false,
 		"show_ui" => true,
 		"show_in_rest" => true,
 		"rest_base" => "",
@@ -69,7 +69,7 @@ function utk_programs_register_cpts() {
 		"hierarchical" => false,
 		"can_export" => false,
 		"rewrite" => [ "slug" => "program", "with_front" => true ],
-		"query_var" => true,
+		"query_var" => false,
 		"menu_icon" => "dashicons-welcome-learn-more",
 		"supports" => [ "title", "editor", "thumbnail" ],
 		"show_in_graphql" => true,
@@ -97,13 +97,14 @@ function utk_programs_register_taxes() {
 	$args = [
 		"label" => __( "Areas of Study", "utk-programs" ),
 		"labels" => $labels,
-		"public" => true,
-		"publicly_queryable" => true,
+		"public" => false,
+		"publicly_queryable" => false,
+		"has_archive" => false,
 		"hierarchical" => false,
 		"show_ui" => true,
 		"show_in_menu" => true,
 		"show_in_nav_menus" => true,
-		"query_var" => true,
+		"query_var" => false,
 		"rewrite" => [ 'slug' => 'area', 'with_front' => true, ],
 		"show_admin_column" => true,
 		"show_in_rest" => true,
@@ -132,13 +133,14 @@ function utk_programs_register_taxes() {
 	$args = [
 		"label" => __( "Colleges", "utk-programs" ),
 		"labels" => $labels,
-		"public" => true,
-		"publicly_queryable" => true,
+		"public" => false,
+		"publicly_queryable" => false,
+		"has_archive" => false,
 		"hierarchical" => false,
 		"show_ui" => true,
 		"show_in_menu" => true,
 		"show_in_nav_menus" => true,
-		"query_var" => true,
+		"query_var" => false,
 		"rewrite" => [ 'slug' => 'college', 'with_front' => true, ],
 		"show_admin_column" => true,
 		"show_in_rest" => true,
@@ -167,13 +169,14 @@ function utk_programs_register_taxes() {
 	$args = [
 		"label" => __( "Degree", "utk-programs" ),
 		"labels" => $labels,
-		"public" => true,
-		"publicly_queryable" => true,
+		"public" => false,
+		"publicly_queryable" => false,
+		"has_archive" => false,
 		"hierarchical" => false,
 		"show_ui" => true,
 		"show_in_menu" => true,
 		"show_in_nav_menus" => true,
-		"query_var" => true,
+		"query_var" => false,
 		"rewrite" => [ 'slug' => 'degree', 'with_front' => true, ],
 		"show_admin_column" => true,
 		"show_in_rest" => true,
@@ -202,13 +205,14 @@ function utk_programs_register_taxes() {
 	$args = [
 		"label" => __( "Concentrations", "utk-programs" ),
 		"labels" => $labels,
-		"public" => true,
-		"publicly_queryable" => true,
+		"public" => false,
+		"publicly_queryable" => false,
+		"has_archive" => false,
 		"hierarchical" => false,
 		"show_ui" => true,
 		"show_in_menu" => true,
 		"show_in_nav_menus" => true,
-		"query_var" => true,
+		"query_var" => false,
 		"rewrite" => [ 'slug' => 'concentration', 'with_front' => true, ],
 		"show_admin_column" => true,
 		"show_in_rest" => true,
