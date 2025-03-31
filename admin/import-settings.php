@@ -1,4 +1,9 @@
 <?php
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 // Add CSV Import submenu page
 function dsu_add_csv_import_page() {
     add_submenu_page(
