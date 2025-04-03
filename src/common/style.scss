@@ -22,7 +22,18 @@ $tooltip-padding-y: 15px;
 
 // END MOVE TO UTKWDS
 
-@import '~bootstrap/scss/bootstrap';
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/maps";
+@import "~bootstrap/scss/mixins";
+@import "~bootstrap/scss/root";
+@import "~bootstrap/scss/tooltip";
+@import "~bootstrap/scss/forms/form-text";
+@import "~bootstrap/scss/forms/form-control";
+@import "~bootstrap/scss/forms/form-check";
+@import "~bootstrap/scss/forms/form-select";
+@import "~bootstrap/scss/forms/floating-labels";
+@import "~bootstrap/scss/forms/input-group";
 
 // MOVE TO UTKWDS
 
@@ -85,11 +96,3 @@ select.form-select {
 }
 
 // END MOVE TO UTKWDS
-
-// Override bootstrap styles conflicting with utility nav search
-.mt-4 {
-    margin-top: inherit !important;
-}
-.mb-3 {
-    margin-bottom: inherit !important;
-}
