@@ -133,8 +133,10 @@
 h2.programs-filters-heading {
   display: flex;
   gap: 5px;
+  margin: 0;
   align-items: center;
   font-size: var(--wp--preset--font-size--small);
+  font-weight: 500;
   margin-bottom: 0;
 
   .tooltip-icon {
@@ -313,7 +315,7 @@ h2.programs-filters-heading {
   }
 }
 
-.programs-back-to-element {
+.programs-back-to {
   position: fixed;
   align-items: center;
   justify-content: center;
@@ -325,6 +327,7 @@ h2.programs-filters-heading {
   background-color: #1a73c5;
   border: none;
   border-radius: 4px;
+  z-index: 1;
 
   &:hover {
     background-color: #0056a5;

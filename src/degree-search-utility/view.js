@@ -463,7 +463,7 @@ export default function View() {
                         <div style={{ display: "none" }}></div>
                         {loadingMore && displayPlaceholders(5)}
                         {isBackToVisible && (
-                            <button className="programs-back-to-element" onClick={scrollToElement}>
+                            <button className="programs-back-to" onClick={scrollToElement}>
                                 <ChevronUpIcon />
                             </button>
                         )}
