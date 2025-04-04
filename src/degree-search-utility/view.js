@@ -374,29 +374,29 @@ export default function View() {
                         {(searchTerm.length > 0 || degreeTypeFilter.length > 0 || areaFilter.length > 0 || collegeFilter.length > 0 || onlineFilter.length > 0) && (
                             <div className="programs-filters-chips">
                                 {searchTerm.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>
                                         <span>{searchTerm}</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                                 {degreeTypeFilter.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>
                                         <span>{degreeTypeFilter}</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                                 {areaFilter.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>
                                         <span>{areaFilterName}</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                                 {collegeFilter.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>
                                         <span>{collegeFilterName}</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                                 {onlineFilter.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>
                                         <span>Online</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                             </div>
                         )}

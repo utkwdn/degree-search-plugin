@@ -260,13 +260,18 @@ h2.programs-filters-heading {
   align-items: center;
   height: 32px;
   padding: 5px 7px 5px 11px;
-  font-size: 0.813rem;
+  font-family: var(--wp--preset--font-family--primary);
+  font-size: 13px;
+  border: none;
   border-radius: 20px;
   color: #fff;
   background-color: #1a73c5;
 
+  &:focus,
   &:hover {
+    outline: 0;
     background: #0056a5;
+    box-shadow: 0 0 0 0.25rem rgba(26, 115, 197, 0.3);
     cursor: pointer;
   }
 
