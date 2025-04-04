@@ -313,7 +313,7 @@ export default function View() {
 
     return (
         <>
-            <div className="wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
+            <div className="programs-container-banner wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
             <div className="programs-container wp-block-group alignfull has-global-padding is-layout-constrained wp-block-group-is-layout-constrained">
                 <div className="programs-filters alignwide">
                     <div className="programs-filters-fields">

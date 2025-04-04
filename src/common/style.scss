@@ -45,6 +45,19 @@ select.form-select {
     color: inherit;
 }
 
+.form-check-input {
+    width: 40px;
+    height: 20px;
+    background-color: #f6f6f6;
+    border: 1px solid #949494;
+  
+    // Switch ON style
+    &:checked {
+      background-color: #2171c2;
+      border-color: #2171c2;
+    }
+}
+
 // Update UTKWDS theme file to this padding
 .button-submit {
     height: 58px;
@@ -86,7 +99,7 @@ select.form-select {
     }
 }
 
-.utkwds-orange-bar-texture {
+.programs-container-banner {
     height: 200px;
 }
 

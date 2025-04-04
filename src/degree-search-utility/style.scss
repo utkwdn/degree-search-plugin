@@ -26,7 +26,6 @@
 
 @media screen and (min-width: 960px) {
   .programs-filters-sticky {
-    // position: sticky;
     top: 0;
     z-index: 1;
     background: #fff;
@@ -234,23 +233,6 @@ h2.programs-filters-heading {
     // max-width: var(--wp--style--global--wide-size);
     margin: 0px auto;
     // padding: 0 20px;
-  }
-}
-
-/* Default switch styles */
-.form-check-input {
-  width: 40px;
-  height: 20px;
-  background-color: #f6f6f6;
-  /* Default background */
-  border: 1px solid #949494;
-  /* Default border */
-  transition: background-color 0.3s, border-color 0.3s;
-
-  // Switch ON style
-  &:checked {
-    background-color: #2171c2;
-    border-color: #2171c2;
   }
 }
 
