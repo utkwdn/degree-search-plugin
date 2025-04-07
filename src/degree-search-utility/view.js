@@ -401,11 +401,21 @@ export default function View() {
                             </div>
                         )}
                         <div className="programs-filters-headings">
-                            <h2 className="programs-filters-heading">Program</h2>
-                            <h2 className="programs-filters-heading">Degree / Certificate</h2>
+                            <h2 className="programs-filters-heading">
+                                Program
+                                <TooltipEl title="Topic of study">
+                                    <InfoIcon />
+                                </TooltipEl>
+                            </h2>
+                            <h2 className="programs-filters-heading">
+                                Degree / Certificate
+                                <TooltipEl title="Award received upon completion of the degree or program">
+                                    <InfoIcon />
+                                </TooltipEl>
+                            </h2>
                             <h2 className="programs-filters-heading">
                                 Concentration
-                                <TooltipEl title="Tooltip text goes here. It can be multiple lines long if it has to be." id="t-1">
+                                <TooltipEl title="A specialized area of study within a program. Some programs may not offer concentrations while others may require them">
                                     <InfoIcon />
                                 </TooltipEl>
                             </h2>
