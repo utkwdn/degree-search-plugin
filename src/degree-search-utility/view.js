@@ -215,42 +215,31 @@ export default function View() {
 
     }, [collegeFilter, collegeMap]);
 
-    // Show back to top element
-    useEffect(() => {
-        const toggleVisibility = () => {
-            setIsBackToVisible(window.scrollY > 1200);
-        };
-
-        window.addEventListener("scroll", toggleVisibility);
-        return () => window.removeEventListener("scroll", toggleVisibility);
-    }, []);
-
     const scrollToElement = () => {
         const element = document.getElementById("filters");
         if (element) {
-            element.scrollIntoView({ behavior: "smooth" });
+            window.scrollTo({ 
+                top: element.getBoundingClientRect().top + window.scrollY, 
+                behavior: "smooth" 
+            });
         }
     };
 
-    // set class on sticky filters
     useEffect(() => {
         const handleScroll = () => {
+            // Back to top visibility
+            setIsBackToVisible(window.scrollY > 1200);
+    
+            // Sticky filters
             if (stickyEl.current) {
+                const adminBar = document.getElementById("wpadminbar");
                 const rect = stickyEl.current.getBoundingClientRect();
-                let offset = 0;
-
-                if (document.body.classList.contains("admin-bar")) {
-                    offset = 32;
-                }
-
-                if (rect.top <= offset) {
-                    setIsSticky(true);
-                } else {
-                    setIsSticky(false);
-                }
+                let offset = adminBar ? adminBar.offsetHeight : 0;
+    
+                setIsSticky(rect.top <= offset);
             }
         };
-
+    
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
@@ -369,7 +358,7 @@ export default function View() {
                     </div>
                     <div
                         ref={stickyEl}
-                        className={`programs-filters-sticky${isSticky ? " programs-filters-sticky--stuck" : ""}`}
+                        className={`programs-filters-sticky${isSticky ? " programs-filters-sticky--fixed" : ""}`}
                     >
                         {(searchTerm.length > 0 || degreeTypeFilter.length > 0 || areaFilter.length > 0 || collegeFilter.length > 0 || onlineFilter.length > 0) && (
                             <div className="programs-filters-chips">

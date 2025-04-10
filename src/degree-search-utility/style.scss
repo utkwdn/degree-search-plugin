@@ -34,7 +34,7 @@
       top: 32px;
     }
 
-    &.programs-filters-sticky--stuck {
+    &--fixed {
       position: sticky;
 
       .programs-filters-headings {
@@ -214,19 +214,6 @@ h2.programs-filters-heading {
 .college-list li {
   margin-left: 0;
 }
-
-// MOVE TO UTKWDS
-
-.placeholder-list {
-  color: #d9d9d9;
-
-  .placeholder {
-    min-height: 32px;
-    border-radius: 4px;
-  }
-}
-
-// END MOVE TO UTKWDS
 
 .programs-container {
   @media screen and (min-width: 1170px) {
