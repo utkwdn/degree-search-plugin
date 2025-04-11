@@ -153,7 +153,7 @@ h2.programs-filters-heading {
   grid-row-gap: 15px;
   margin: 0;
   padding: 30px;
-  border-bottom: 1px solid #dadada;
+  border-bottom: 1px solid var(--wp--preset--color--gray-2);
 }
 
 
@@ -279,9 +279,16 @@ h2.programs-filters-heading {
 }
 
 .programs-filters-no-results {
-  padding: 85px;
-  background: #f6f6f6;
+  padding: 40px 40px 30px;
   text-align: center;
+  background: #f6f6f6;
+  border-bottom: 1px solid var(--wp--preset--color--gray-2);
+}
+
+@media screen and (min-width: 960px) {
+  .programs-filters-no-results {
+    padding: 80px 0 70px;
+  }
 }
 
 .programs-filters-no-results-content {
@@ -289,7 +296,9 @@ h2.programs-filters-heading {
   margin: 0 auto;
   
   h2 {
-    font-weight: 900;
+    margin: 0;
+    font-weight: var(--wp--custom--font-weight--black);
+    line-height: var(--wp--custom--line-height--heading);
   }
 }
 
