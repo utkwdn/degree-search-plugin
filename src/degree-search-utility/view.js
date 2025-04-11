@@ -414,9 +414,11 @@ export default function View() {
                         {isLoading ? (
                             displayPlaceholders(7)
                         ) : programs.length === 0 && !isLoading ? (
-                            <div id="no-results">
-                                <h2>There are no matches for your search.</h2>
-                                <p>Try searching again with different terms.</p>
+                            <div className="programs-filters-no-results">
+                                <div className="programs-filters-no-results-content">
+                                    <h2>There are no matches for your search.</h2>
+                                    <p>Try searching again with different terms.</p>
+                                </div>
                             </div>
                         ) : (
                             <>

@@ -278,12 +278,16 @@ h2.programs-filters-heading {
   }
 }
 
-#no-results {
-  grid-column: 1/4;
-  text-align: center;
+.programs-filters-no-results {
   padding: 85px;
   background: #f6f6f6;
+  text-align: center;
+}
 
+.programs-filters-no-results-content {
+  max-width: 750px;
+  margin: 0 auto;
+  
   h2 {
     font-weight: 900;
   }
