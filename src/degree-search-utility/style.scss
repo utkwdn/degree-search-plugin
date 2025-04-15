@@ -7,10 +7,6 @@
 
  @import '../common/style.scss';
 
-.areasContainer {
-  padding-bottom: 3rem;
-}
-
 @media screen and (min-width: 800px) {
   .areasContainer {
     flex-direction: row;
@@ -83,14 +79,7 @@
 @media screen and (min-width: 960px) {
   .programs-filters-results {
     margin: 0;
-    padding: 0 0 3rem;
     border-top: none;
-  }
-}
-
-@media screen and (min-width: 960px) {
-  .programs-filters-results {
-    margin: 0 auto 3rem;
   }
 }
 
