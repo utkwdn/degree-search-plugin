@@ -60,7 +60,7 @@ export default function Edit() {
 
 	return (
 		<>
-			<div className="wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
+			<div className="programs-container-banner wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
 			<div { ...useBlockProps() } className="programs-filters alignwide" id="filters">
 				{ __(
 					<>

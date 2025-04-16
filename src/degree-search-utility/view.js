@@ -215,42 +215,31 @@ export default function View() {
 
     }, [collegeFilter, collegeMap]);
 
-    // Show back to top element
-    useEffect(() => {
-        const toggleVisibility = () => {
-            setIsBackToVisible(window.scrollY > 1200);
-        };
-
-        window.addEventListener("scroll", toggleVisibility);
-        return () => window.removeEventListener("scroll", toggleVisibility);
-    }, []);
-
     const scrollToElement = () => {
         const element = document.getElementById("filters");
         if (element) {
-            element.scrollIntoView({ behavior: "smooth" });
+            window.scrollTo({ 
+                top: element.getBoundingClientRect().top + window.scrollY, 
+                behavior: "smooth" 
+            });
         }
     };
 
-    // set class on sticky filters
     useEffect(() => {
         const handleScroll = () => {
+            // Back to top visibility
+            setIsBackToVisible(window.scrollY > 1200);
+    
+            // Sticky filters
             if (stickyEl.current) {
+                const adminBar = document.getElementById("wpadminbar");
                 const rect = stickyEl.current.getBoundingClientRect();
-                let offset = 0;
-
-                if (document.body.classList.contains("admin-bar")) {
-                    offset = 32;
-                }
-
-                if (rect.top <= offset) {
-                    setIsSticky(true);
-                } else {
-                    setIsSticky(false);
-                }
+                let offset = adminBar ? adminBar.offsetHeight : 0;
+    
+                setIsSticky(rect.top <= offset);
             }
         };
-
+    
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
@@ -313,7 +302,7 @@ export default function View() {
 
     return (
         <>
-            <div className="wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
+            <div className="programs-container-banner wp-block-block alignfull utkwds-orange-bar-texture has-orange-background-color has-background" />
             <div className="programs-container wp-block-group alignfull has-global-padding is-layout-constrained wp-block-group-is-layout-constrained">
                 <div className="programs-filters alignwide">
                     <div className="programs-filters-fields">
@@ -369,43 +358,53 @@ export default function View() {
                     </div>
                     <div
                         ref={stickyEl}
-                        className={`programs-filters-sticky${isSticky ? " programs-filters-sticky--stuck" : ""}`}
+                        className={`programs-filters-sticky${isSticky ? " programs-filters-sticky--fixed" : ""}`}
                     >
                         {(searchTerm.length > 0 || degreeTypeFilter.length > 0 || areaFilter.length > 0 || collegeFilter.length > 0 || onlineFilter.length > 0) && (
                             <div className="programs-filters-chips">
                                 {searchTerm.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('search', '', setSearchTerm)}>
                                         <span>{searchTerm}</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                                 {degreeTypeFilter.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('degree_type', '', setDegreeTypeFilter)}>
                                         <span>{degreeTypeFilter}</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                                 {areaFilter.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('area', '', setAreaFilter)}>
                                         <span>{areaFilterName}</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                                 {collegeFilter.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('college', '', setCollegeFilter)}>
                                         <span>{collegeFilterName}</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                                 {onlineFilter.length > 0 && (
-                                    <div className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>
+                                    <button className="programs-filters-chip" onClick={() => handleFilterChange('online', '', setOnlineFilter)}>
                                         <span>Online</span> <CloseIcon />
-                                    </div>
+                                    </button>
                                 )}
                             </div>
                         )}
                         <div className="programs-filters-headings">
-                            <h2 className="programs-filters-heading">Program</h2>
-                            <h2 className="programs-filters-heading">Degree / Certificate</h2>
+                            <h2 className="programs-filters-heading">
+                                Program
+                                <TooltipEl title="Topic of study">
+                                    <InfoIcon />
+                                </TooltipEl>
+                            </h2>
+                            <h2 className="programs-filters-heading">
+                                Degree / Certificate
+                                <TooltipEl title="Award received upon completion of the degree or program">
+                                    <InfoIcon />
+                                </TooltipEl>
+                            </h2>
                             <h2 className="programs-filters-heading">
                                 Concentration
-                                <TooltipEl title="Tooltip text goes here. It can be multiple lines long if it has to be." id="t-1">
+                                <TooltipEl title="A specialized area of study within a program. Some programs may not offer concentrations while others may require them">
                                     <InfoIcon />
                                 </TooltipEl>
                             </h2>
@@ -415,9 +414,11 @@ export default function View() {
                         {isLoading ? (
                             displayPlaceholders(7)
                         ) : programs.length === 0 && !isLoading ? (
-                            <div id="no-results">
-                                <h2>There are no matches for your search.</h2>
-                                <p>Try searching again with different terms.</p>
+                            <div className="programs-filters-no-results">
+                                <div className="programs-filters-no-results-content">
+                                    <h2>There are no matches for your search.</h2>
+                                    <p>Try searching again with different terms.</p>
+                                </div>
                             </div>
                         ) : (
                             <>
@@ -463,7 +464,7 @@ export default function View() {
                         <div style={{ display: "none" }}></div>
                         {loadingMore && displayPlaceholders(5)}
                         {isBackToVisible && (
-                            <button className="programs-back-to-element" onClick={scrollToElement}>
+                            <button className="programs-back-to" onClick={scrollToElement}>
                                 <ChevronUpIcon />
                             </button>
                         )}

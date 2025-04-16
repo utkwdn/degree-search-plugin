@@ -7,10 +7,6 @@
 
  @import '../common/style.scss';
 
-.areasContainer {
-  padding-bottom: 3rem;
-}
-
 @media screen and (min-width: 800px) {
   .areasContainer {
     flex-direction: row;
@@ -20,13 +16,12 @@
 
 // not sure why the !important is needed, but it doesn't work without it
 .programs-filters {
-  margin-top: -120px !important;
+  margin-top: -150px !important;
   background: #fff;
 }
 
 @media screen and (min-width: 960px) {
   .programs-filters-sticky {
-    // position: sticky;
     top: 0;
     z-index: 1;
     background: #fff;
@@ -35,7 +30,7 @@
       top: 32px;
     }
 
-    &.programs-filters-sticky--stuck {
+    &--fixed {
       position: sticky;
 
       .programs-filters-headings {
@@ -50,7 +45,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
-  padding: 30px 20px 0;
+  padding: 20px 20px 0;
   z-index: 2;
 }
 
@@ -84,14 +79,7 @@
 @media screen and (min-width: 960px) {
   .programs-filters-results {
     margin: 0;
-    padding: 0 0 3rem;
     border-top: none;
-  }
-}
-
-@media screen and (min-width: 960px) {
-  .programs-filters-results {
-    margin: 0 auto 3rem;
   }
 }
 
@@ -133,8 +121,10 @@
 h2.programs-filters-heading {
   display: flex;
   gap: 5px;
+  margin: 0;
   align-items: center;
   font-size: var(--wp--preset--font-size--small);
+  font-weight: 500;
   margin-bottom: 0;
 
   .tooltip-icon {
@@ -152,7 +142,7 @@ h2.programs-filters-heading {
   grid-row-gap: 15px;
   margin: 0;
   padding: 30px;
-  border-bottom: 1px solid #dadada;
+  border-bottom: 1px solid var(--wp--preset--color--gray-2);
 }
 
 
@@ -214,41 +204,11 @@ h2.programs-filters-heading {
   margin-left: 0;
 }
 
-// MOVE TO UTKWDS
-
-.placeholder-list {
-  color: #d9d9d9;
-
-  .placeholder {
-    min-height: 32px;
-    border-radius: 4px;
-  }
-}
-
-// END MOVE TO UTKWDS
-
 .programs-container {
   @media screen and (min-width: 1170px) {
     // max-width: var(--wp--style--global--wide-size);
     margin: 0px auto;
     // padding: 0 20px;
-  }
-}
-
-/* Default switch styles */
-.form-check-input {
-  width: 40px;
-  height: 20px;
-  background-color: #f6f6f6;
-  /* Default background */
-  border: 1px solid #949494;
-  /* Default border */
-  transition: background-color 0.3s, border-color 0.3s;
-
-  // Switch ON style
-  &:checked {
-    background-color: #2171c2;
-    border-color: #2171c2;
   }
 }
 
@@ -276,13 +236,18 @@ h2.programs-filters-heading {
   align-items: center;
   height: 32px;
   padding: 5px 7px 5px 11px;
-  font-size: 0.813rem;
+  font-family: var(--wp--preset--font-family--primary);
+  font-size: 13px;
+  border: none;
   border-radius: 20px;
   color: #fff;
   background-color: #1a73c5;
 
+  &:focus,
   &:hover {
+    outline: 0;
     background: #0056a5;
+    box-shadow: 0 0 0 0.25rem rgba(26, 115, 197, 0.3);
     cursor: pointer;
   }
 
@@ -302,18 +267,31 @@ h2.programs-filters-heading {
   }
 }
 
-#no-results {
-  grid-column: 1/4;
+.programs-filters-no-results {
+  padding: 40px 40px 30px;
   text-align: center;
-  padding: 85px;
   background: #f6f6f6;
+  border-bottom: 1px solid var(--wp--preset--color--gray-2);
+}
 
-  h2 {
-    font-weight: 900;
+@media screen and (min-width: 960px) {
+  .programs-filters-no-results {
+    padding: 80px 0 70px;
   }
 }
 
-.programs-back-to-element {
+.programs-filters-no-results-content {
+  max-width: 750px;
+  margin: 0 auto;
+  
+  h2 {
+    margin: 0;
+    font-weight: var(--wp--custom--font-weight--black);
+    line-height: var(--wp--custom--line-height--heading);
+  }
+}
+
+.programs-back-to {
   position: fixed;
   align-items: center;
   justify-content: center;
@@ -325,6 +303,7 @@ h2.programs-filters-heading {
   background-color: #1a73c5;
   border: none;
   border-radius: 4px;
+  z-index: 1;
 
   &:hover {
     background-color: #0056a5;
