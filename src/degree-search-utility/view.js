@@ -392,19 +392,19 @@ export default function View() {
                         <div className="programs-filters-headings">
                             <h2 className="programs-filters-heading">
                                 Program
-                                <TooltipEl title="Topic of study">
+                                <TooltipEl title="What you'll study.">
                                     <InfoIcon />
                                 </TooltipEl>
                             </h2>
                             <h2 className="programs-filters-heading">
                                 Degree / Certificate
-                                <TooltipEl title="Award received upon completion of the degree or program">
+                                <TooltipEl title="What you'll graduate with.">
                                     <InfoIcon />
                                 </TooltipEl>
                             </h2>
                             <h2 className="programs-filters-heading">
                                 Concentration
-                                <TooltipEl title="A specialized area of study within a program. Some programs may not offer concentrations while others may require them">
+                                <TooltipEl title="What your program focuses on. (Some programs may not offer concentrations and others may require them.)">
                                     <InfoIcon />
                                 </TooltipEl>
                             </h2>
