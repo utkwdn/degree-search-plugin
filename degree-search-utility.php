@@ -3,7 +3,7 @@
  * Plugin Name: Degree Search Utility
  * Description: A custom plugin to add, edit, and display degree programs.
  * Plugin URI:   https://www.utk.edu
- * Author: UT OCM
+ * Author: The University of Tennessee, Knoxville
  * Version: 1.0
  * Text Domain: degree-search-utility
  * Domain Path: /languages

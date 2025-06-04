@@ -2,7 +2,7 @@
 	"name": "degree-search-utility",
 	"version": "0.1.0",
 	"description": "Add, edit and display a searchable list of degrees",
-	"author": "UT OCM",
+	"author": "The University of Tennessee, Knoxville",
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
 	"scripts": {
