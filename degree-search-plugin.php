@@ -1,10 +1,10 @@
 <?php
 /**
  * Plugin Name: Degree Search Utility
- * Description: A custom plugin to add, edit, and display degree programs.
- * Plugin URI:   https://www.utk.edu
+ * Description: A custom plugin to add, edit, and display degree programs
+ * Plugin URI:   https://github.com/utkwdn/degree-search-plugin
  * Author: The University of Tennessee, Knoxville
- * Version: 1.0
+ * Version: 1.0.0
  * Text Domain: degree-search-utility
  * Domain Path: /languages
  * License: GPL v2 or later
@@ -377,8 +377,8 @@ function register_degree_type_rest_field() {
 		'degree',
 		'degree_type',
 		array(
-			'get_callback' => function ( $object ) {
-				return get_field( 'degree_type', $object['id'] );
+			'get_callback' => function ( $post_data ) {
+				return get_field( 'degree_type', $post_data['id'] );
 			},
 			'schema'       => array(
 				'description' => __( 'Degree Type', 'degree-search-utility' ),
@@ -399,8 +399,8 @@ function register_concentration_online_rest_field() {
 		'concentration',
 		'online',
 		array(
-			'get_callback' => function ( $object ) {
-				return get_field( 'online', 'concentration_' . $object['id'] ); // ACF stores taxonomy fields with "concentration_".
+			'get_callback' => function ( $post_data ) {
+				return get_field( 'online', 'concentration_' . $post_data['id'] ); // ACF stores taxonomy fields with "concentration_".
 			},
 			'schema'       => array(
 				'description' => __( 'Online Availability', 'degree-search-utility' ),
@@ -541,7 +541,6 @@ if ( function_exists( 'acf_add_local_field_group' ) ) :
 					'label'             => 'Degree Type',
 					'name'              => 'degree_type',
 					'type'              => 'select',
-					// 'instructions' => 'Select the type of degree.',
 					'required'          => 0,
 					'conditional_logic' => 0,
 					'wrapper'           => array(
@@ -643,7 +642,6 @@ if ( function_exists( 'acf_add_local_field_group' ) ) :
 					'label'             => 'Online',
 					'name'              => 'online',
 					'type'              => 'true_false',
-					// 'instructions' => 'Check if this concentration is available online.',
 					'required'          => 0,
 					'conditional_logic' => 0,
 					'wrapper'           => array(
@@ -651,7 +649,6 @@ if ( function_exists( 'acf_add_local_field_group' ) ) :
 						'class' => '',
 						'id'    => '',
 					),
-					// 'message' => 'Available Online',
 					'default_value'     => 0,
 					'ui'                => 1,
 					'ui_on_text'        => 'Yes',
