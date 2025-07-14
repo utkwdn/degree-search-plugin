@@ -1,0 +1,17 @@
+/**
+ * The following styles get applied inside the editor only.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+ .search-widget-info {
+    display:flex;
+    margin: 20px 0 0;
+    font-size: medium;
+    
+    .notice {
+        width: 50%;
+    }
+ }
+
+ 

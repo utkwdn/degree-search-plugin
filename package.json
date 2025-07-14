@@ -1,8 +1,9 @@
 {
-	"name": "degree-search-utility",
-	"version": "0.1.0",
-	"description": "Add, edit and display a searchable list of degrees",
-	"author": "UT OCM",
+	"name": "degree-search-plugin",
+	"version": "1.0.0",
+	"description": "A custom plugin to add, edit, and display degree programs",
+	"author": "The University of Tennessee, Knoxville",
+	"homepage": "https://github.com/utkwdn/degree-search-plugin",
 	"license": "GPL-2.0-or-later",
 	"main": "build/index.js",
 	"scripts": {
@@ -15,7 +16,9 @@
 		"start": "wp-scripts start --webpack-copy-php"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^30.10.0"
+		"@wordpress/scripts": "^30.10.0",
+		"@wordpress/prettier-config": "^4.23.0",
+		"prettier": "npm:wp-prettier@^3.0.3"
 	},
 	"dependencies": {
 		"@wordpress/api-fetch": "^7.18.0",
