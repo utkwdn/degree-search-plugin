@@ -451,7 +451,7 @@ function add_online_filter( $args, $request ) {
 	}
 	return $args;
 }
-add_filter( 'rest_program_query', 'add_online_filter', 10, 2 );
+add_filter( 'rest_program_query', 'add_online_filter', 30, 2 );
 
 
 /**
