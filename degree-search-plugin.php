@@ -455,6 +455,107 @@ add_filter( 'rest_program_query', 'add_online_filter', 10, 2 );
 
 
 /**
+ * Expands keyword search to add support for searching common degree terms (e.g. "Bachelors in Nursing")
+ *
+ * @param array           $args    Query arguments to filter.
+ * @param WP_REST_Request $request The REST request object.
+ * @return array Modified query arguments
+ */
+function keyword_search_with_degree_search_support( $args, $request ) {
+	if ( isset( $request['search_term'] ) ) {
+		$search_term = strtolower( sanitize_text_field( $request['search_term'] ) );
+
+		// Break search into keywords.
+		$words = preg_split( '/\s+/', $search_term );
+
+		// Words to skip in search.
+		$skip_words = array( 'and', 'or', 'in', 'of', 'the', 'a', 'an', 'for', 'to', 'with', 'on', 'at', 'by', 'from' );
+
+		$degree_matched_ids  = array();
+		$non_degree_keywords = array();
+
+		foreach ( $words as $word ) {
+			// Skip $skip_words.
+			if ( in_array( $word, $skip_words, true ) ) {
+				continue;
+			}
+
+			if ( str_contains( $word, 'bachelor' ) ) {
+				$degree_matched_ids = array_merge( $degree_matched_ids, get_degree_terms_starting_with( array( 'B' ) ) );
+			} elseif ( str_contains( $word, 'master' ) ) {
+				$degree_matched_ids = array_merge( $degree_matched_ids, get_degree_terms_starting_with( array( 'M' ) ) );
+			} elseif ( str_contains( $word, 'doctor' ) ) {
+				$degree_matched_ids = array_merge( $degree_matched_ids, get_degree_terms_starting_with( array( 'D', 'E', 'J', 'P' ) ) );
+			} else {
+				$non_degree_keywords[] = $word;
+			}
+		}
+
+		// If any degree matches found, add tax_query.
+		if ( ! empty( $degree_matched_ids ) ) {
+			$args['tax_query'][] = array(
+				'taxonomy' => 'degree',
+				'field'    => 'term_id',
+				'terms'    => array_unique( $degree_matched_ids ),
+				'operator' => 'IN',
+			);
+		}
+
+		// If non-degree search terms exist, use keyword search.
+		if ( ! empty( $non_degree_keywords ) ) {
+			$args['s'] = implode( ' ', $non_degree_keywords );
+		}
+	}
+
+	return $args;
+}
+
+/**
+ * Helper to find degree terms starting with a specific letter
+ *
+ * @param array $prefixes Array of starting letter for the degree name.
+ * @return array IDs of matching degrees
+ */
+function get_degree_terms_starting_with( $prefixes ) {
+	$matched = array();
+
+	if ( empty( $prefixes ) || ! is_array( $prefixes ) ) {
+		return $matched;
+	}
+
+	// Terms to exclude explicitly.
+	$excluded = array( 'EDS' );
+
+	// Get all degree terms once.
+	$terms = get_terms(
+		array(
+			'taxonomy'   => 'degree',
+			'hide_empty' => false,
+		)
+	);
+
+	foreach ( $terms as $term ) {
+		$term_name_upper = strtoupper( $term->name );
+
+		// Skip if term is in the excluded list.
+		if ( in_array( $term_name_upper, $excluded, true ) ) {
+			continue;
+		}
+
+		foreach ( $prefixes as $prefix ) {
+			if ( stripos( $term->name, $prefix ) === 0 ) {
+				$matched[] = $term->term_id;
+				break; // Avoid duplicates if multiple prefixes match.
+			}
+		}
+	}
+
+	return array_unique( $matched );
+}
+add_filter( 'rest_program_query', 'keyword_search_with_degree_search_support', 20, 2 );
+
+
+/**
  * Add custom fields to Area of Study taxonomy, Program post type, Unit post type.
  */
 
