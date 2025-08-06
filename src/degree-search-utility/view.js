@@ -21,7 +21,7 @@ export default function View() {
 	const stickyEl = useRef( null );
 
 	const [ searchTerm, setSearchTerm ] = useState(
-		new URLSearchParams( window.location.search ).get( 'search' ) || ''
+		new URLSearchParams( window.location.search ).get( 'search_term' ) || ''
 	);
 	const [ degreeTypeFilter, setDegreeTypeFilter ] = useState(
 		new URLSearchParams( window.location.search ).get( 'degree_type' ) || ''
@@ -391,7 +391,7 @@ export default function View() {
 									value={ searchTerm }
 									onChange={ ( e ) =>
 										handleFilterChange(
-											'search',
+											'search_term',
 											e.target.value,
 											setSearchTerm
 										)
@@ -572,7 +572,7 @@ export default function View() {
 										className="programs-filters-chip"
 										onClick={ () =>
 											handleFilterChange(
-												'search',
+												'search_term',
 												'',
 												setSearchTerm
 											)
