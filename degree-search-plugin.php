@@ -4,7 +4,7 @@
  * Description: A custom plugin to add, edit, and display degree programs
  * Plugin URI:   https://github.com/utkwdn/degree-search-plugin
  * Author: The University of Tennessee, Knoxville
- * Version: 1.1.0
+ * Version: 1.1.1
  * Text Domain: degree-search-utility
  * Domain Path: /languages
  * License: GPL v2 or later
@@ -487,6 +487,10 @@ function keyword_search_with_degree_search_support( $args, $request ) {
 			} elseif ( str_contains( $word, 'doctor' ) ) {
 				$degree_matched_ids = array_merge( $degree_matched_ids, get_degree_terms_starting_with( array( 'D', 'E', 'J', 'P' ) ) );
 			} else {
+				// Remove trailing 's' if $word is longer than 2 characters ("Communications" will also match "Communication").
+				if ( strlen( $word ) > 2 ) {
+					$word = preg_replace( '/s$/i', '', $word );
+				}
 				$non_degree_keywords[] = $word;
 			}
 		}

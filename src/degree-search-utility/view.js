@@ -55,17 +55,6 @@ export default function View() {
 
 		const baseURL = `/wp/v2/program?_embed&orderby=title&order=asc&per_page=${ resultsPerPage }&page=${ page }`;
 		const urlParams = new URLSearchParams( window.location.search );
-
-		// Remove final 's' from search term ("Communications" will also match "Communication")
-		const searchTerm = urlParams.get( 'search' );
-		if (
-			searchTerm &&
-			searchTerm.length > 1 &&
-			searchTerm.endsWith( 's' )
-		) {
-			urlParams.set( 'search', searchTerm.slice( 0, -1 ) ); // Remove final 's'
-		}
-
 		const params = urlParams.toString();
 
 		apiFetch( { path: `${ baseURL }&${ params }`, signal, parse: false } ) // Use parse: false to access headers
