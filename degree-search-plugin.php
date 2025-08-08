@@ -463,7 +463,6 @@ add_filter( 'rest_program_query', 'add_online_filter', 30, 2 );
  */
 function keyword_search_with_degree_search_support( $args, $request ) {
 	if ( isset( $request['search_term'] ) ) {
-		error_log( 'Hello World!' );
 		$search_term = strtolower( sanitize_text_field( $request['search_term'] ) );
 
 		// Break search into keywords.
@@ -491,7 +490,7 @@ function keyword_search_with_degree_search_support( $args, $request ) {
 			} elseif ( str_contains( $word, 'doctor' ) ) {
 				$degree_matched_ids = array_merge( $degree_matched_ids, get_degree_terms_starting_with( array( 'D', 'E', 'J', 'P' ) ) );
 			} else {
-				// Remove trailing 's' if $word is longer than 2 characters.
+				// Remove trailing 's' if $word is longer than 2 characters ("Communications" will also match "Communication").
 				if ( strlen( $word ) > 2 ) {
 					$word = preg_replace( '/s$/i', '', $word );
 				}
