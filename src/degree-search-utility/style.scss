@@ -259,6 +259,35 @@ h2.programs-filters-heading {
   }
 }
 
+.programs-reset-filters-chip {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  height: 32px;
+  padding: 5px 12px 5px 9px;
+  font-family: var(--wp--preset--font-family--primary);
+  font-size: 14px;
+  font-weight:600;
+  border: 1px solid #1A73C5;
+  border-radius: 20px;
+  color: #1A73C5;
+  background-color: #fff;
+
+  &:focus,
+  &:hover {
+    color: #4b4b4b;
+    border: 1px solid #4b4b4b;
+    cursor: pointer;
+  }
+
+  span {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 @media screen and (min-width: 960px) {
   .programs-filters-chip {
     span {
