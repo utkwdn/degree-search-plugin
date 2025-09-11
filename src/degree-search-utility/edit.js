@@ -76,7 +76,7 @@ export default function Edit() {
 					<>
 						<div className="programs-filters-fields">
 							<div className="programs-filters-field">
-								<div class="form-floating">
+								<div className="form-floating">
 									<input
 										className="form-control"
 										aria-label="Program Search"
@@ -91,7 +91,7 @@ export default function Edit() {
 								</div>
 							</div>
 							<div className="programs-filters-field">
-								<div class="form-floating">
+								<div className="form-floating">
 									<select
 										name="degree-type"
 										className="form-select"
@@ -106,7 +106,7 @@ export default function Edit() {
 								</div>
 							</div>
 							<div className="programs-filters-field">
-								<div class="form-floating">
+								<div className="form-floating">
 									<select
 										name="area"
 										className="form-select"
@@ -123,7 +123,7 @@ export default function Edit() {
 								</div>
 							</div>
 							<div className="programs-filters-field">
-								<div class="form-floating">
+								<div className="form-floating">
 									<select
 										name="college"
 										className="form-select"
@@ -138,15 +138,15 @@ export default function Edit() {
 								</div>
 							</div>
 							<div className="programs-filters-field">
-								<div class="form-check form-switch">
+								<div className="form-check form-switch">
 									<input
-										class="form-check-input"
+										className="form-check-input"
 										type="checkbox"
 										role="switch"
 										id="flexSwitchCheckDefault"
 									/>
 									<label
-										class="form-check-label"
+										className="form-check-label"
 										for="flexSwitchCheckDefault"
 									>
 										Online
