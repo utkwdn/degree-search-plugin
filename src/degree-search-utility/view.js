@@ -314,7 +314,7 @@ export default function View() {
 						{ Array.from( { length: 3 } ).map( ( _, subIndex ) => (
 							<ul key={ subIndex } className="placeholder-list">
 								<Placeholder as="li" animation="glow">
-									<Placeholder xs={ 12 } size="lg" />
+									<Placeholder size="lg" style={ { width: `100%`, height: 32 } } />
 								</Placeholder>
 							</ul>
 						) ) }
@@ -394,7 +394,7 @@ export default function View() {
 				<div className="programs-filters alignwide">
 					<div className="programs-filters-fields">
 						<div className="programs-filters-field">
-							<div class="form-floating">
+							<div className="form-floating">
 								<input
 									className="form-control"
 									aria-label="Program Search"
@@ -417,7 +417,7 @@ export default function View() {
 							</div>
 						</div>
 						<div className="programs-filters-field">
-							<div class="form-floating">
+							<div className="form-floating">
 								<select
 									name="degree-type"
 									className="form-select"
@@ -483,7 +483,7 @@ export default function View() {
 							</div>
 						</div>
 						<div className="programs-filters-field">
-							<div class="form-floating">
+							<div className="form-floating">
 								<select
 									name="area"
 									className="form-select"
@@ -519,7 +519,7 @@ export default function View() {
 							</div>
 						</div>
 						<div className="programs-filters-field">
-							<div class="form-floating">
+							<div className="form-floating">
 								<select
 									name="college"
 									className="form-select"
