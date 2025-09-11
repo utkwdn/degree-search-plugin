@@ -4,7 +4,7 @@
  * Description: A custom plugin to add, edit, and display degree programs
  * Plugin URI:   https://github.com/utkwdn/degree-search-plugin
  * Author: The University of Tennessee, Knoxville
- * Version: 1.1.3
+ * Version: 1.1.4
  * Text Domain: degree-search-utility
  * Domain Path: /languages
  * License: GPL v2 or later
