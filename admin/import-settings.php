@@ -1,261 +1,478 @@
 <?php
+/**
+ * Program CSV Import functionality.
+ *
+ * Provides admin tools to import programs from a CSV file, update program URLs and delete all programs
+ *
+ * @package DegreeSearchUtility
+ */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-// Add CSV Import submenu page
+/**
+ * Register the "Manage Programs" submenu page.
+ *
+ * @return void
+ */
 function dsu_add_csv_import_page() {
-    add_submenu_page(
-        'edit.php?post_type=program',
-        'Import Programs',
-        'Import Programs',
-        'manage_options',
-        'dsu-import-programs',
-        'dsu_render_csv_import_page'
-    );
+	add_submenu_page(
+		'edit.php?post_type=program',
+		'Manage Programs',
+		'Manage Programs',
+		'manage_options',
+		'dsu-manage-programs',
+		'dsu_render_csv_import_page'
+	);
 }
-add_action('admin_menu', 'dsu_add_csv_import_page');
+add_action( 'admin_menu', 'dsu_add_csv_import_page' );
 
-// Render CSV Import Page
+/**
+ * Render the CSV import, url update and delete programs admin page.
+ *
+ * @return void
+ */
 function dsu_render_csv_import_page() {
-    ?>
-    <div class="wrap">
-        <h1>Manage Programs</h1>
-        
-        <!-- CSV Import Form -->
-        <h2>Import Programs from CSV</h2>
-        <form method="post" enctype="multipart/form-data">
-            <input type="file" name="csv_file" accept=".csv" required>
-            <input type="submit" name="dsu_import_csv" class="button-primary" value="Import">
-        </form>
+	?>
+	<div class="wrap">
+		<h1>Manage Programs</h1>
+		
+		<!-- CSV Import Form -->
+		<div class="dsu-section" style="margin-bottom: 30px; padding-bottom: 30px;  border-bottom: 1px solid #d4d4d4;">
+			<h2>Import Programs from CSV</h2>
+			<form method="post" enctype="multipart/form-data">
+				<?php wp_nonce_field( 'dsu_import_csv_action', 'dsu_import_csv_nonce' ); ?>
+				<input type="file" name="csv_file" accept=".csv" required>
+				<input type="submit" name="dsu_import_csv" class="button-primary" value="Import">
+			</form>
+		</div>
 
-        <!-- Delete All Programs Button -->
-        <h2>Delete All Programs</h2>
-        <form method="post">
-            <input type="submit" name="dsu_delete_all_programs" class="button-secondary" value="Delete All Programs" onclick="return confirm('Are you sure you want to delete all programs? This action cannot be undone.');">
-        </form>
-    </div>
-    <?php
+		<!-- Update Program URLs -->
+		<div class="dsu-section" style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid #d4d4d4;">
+			<h2>Update Program URLs</h2>
+			<form method="post">
+				<?php wp_nonce_field( 'dsu_update_program_urls_action', 'dsu_update_program_urls_nonce' ); ?>
+				<!-- <label for="college_select">Select College:</label> -->
+				<select name="college_id" id="college_select" required>
+					<option value="">-- Select College --</option>
+					<?php
+					$colleges = get_terms(
+						array(
+							'taxonomy'   => 'college',
+							'hide_empty' => false,
+						)
+					);
+					foreach ( $colleges as $college ) {
+						printf(
+							'<option value="%d">%s</option>',
+							esc_attr( $college->term_id ),
+							esc_html( $college->name )
+						);
+					}
+					?>
+				</select>
+				<input type="submit" name="dsu_update_program_urls" class="button button-primary" value="Update Links">
+			</form>
+		</div>
 
-    if (isset($_POST['dsu_import_csv'])) {
-        dsu_handle_csv_upload();
-    }
+		<!-- Delete All Programs Button -->
+		<div class="dsu-section" style="padding-bottom: 30px; border-bottom: 1px solid #d4d4d4;">
+			<h2>Delete All Programs</h2>
+			<form method="post">
+				<?php wp_nonce_field( 'dsu_delete_programs_action', 'dsu_delete_programs_nonce' ); ?>
+				<input type="submit" name="dsu_delete_all_programs" class="button-secondary" value="Delete All Programs" onclick="return confirm('Are you sure you want to delete all programs? This action cannot be undone.');">
+			</form>
+		</div>
+	</div>
+	<?php
 
-    if (isset($_POST['dsu_delete_all_programs'])) {
-        dsu_delete_all_programs();
-    }
+	// Handle import CSV.
+	if ( isset( $_POST['dsu_import_csv'] ) && check_admin_referer( 'dsu_import_csv_action', 'dsu_import_csv_nonce' ) ) {
+		dsu_handle_csv_upload();
+	}
+
+	// Handle delete all programs.
+	if ( isset( $_POST['dsu_delete_all_programs'] ) && check_admin_referer( 'dsu_delete_programs_action', 'dsu_delete_programs_nonce' ) ) {
+		dsu_delete_all_programs();
+	}
 }
 
-// Handle CSV Upload
+/**
+ * Handle CSV file upload and process its data.
+ *
+ * @return void
+ */
 function dsu_handle_csv_upload() {
-    if (!current_user_can('manage_options')) {
-        wp_die(__('You do not have sufficient permissions to access this page.'));
-    }
-    
-    if (!isset($_FILES['csv_file']) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK) {
-        echo '<div class="error"><p>Error uploading file.</p></div>';
-        return;
-    }
-    
-    $file = $_FILES['csv_file']['tmp_name'];
-    $csv_data = array_map('str_getcsv', file($file));
-    
-    if (empty($csv_data)) {
-        echo '<div class="error"><p>CSV file is empty.</p></div>';
-        return;
-    }
-    
-    // Process CSV Data
-    $header = array_map('trim', $csv_data[0]);
-    unset($csv_data[0]);
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'degree-search-utility' ) );
+	}
 
-    $programs = [];
+	if ( ! isset( $_POST['dsu_import_csv_nonce'] ) ||
+		! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['dsu_import_csv_nonce'] ) ), 'dsu_import_csv_action' ) ) {
+		wp_die( esc_html__( 'Security check failed.', 'degree-search-utility' ) );
+	}
 
-    foreach ($csv_data as $row) {
-        $row = array_map('trim', $row);
-        $data = array_combine($header, $row);
+	if ( ! isset( $_FILES['csv_file'] ) || ! isset( $_FILES['csv_file']['error'] ) || UPLOAD_ERR_OK !== (int) $_FILES['csv_file']['error'] || empty( $_FILES['csv_file']['tmp_name'] ) ) {
+		echo '<div class="error"><p>Error uploading file.</p></div>';
+		return;
+	}
 
-        $program_key = $data['MajorName'] . ' - ' . $data['DegreeName'];
-        // Split Areas into array
-        $data['AreasArray'] = explode(' | ', $data['AreaName']);
+	// Sanitize the tmp_name value.
+	$file     = sanitize_text_field( wp_unslash( $_FILES['csv_file']['tmp_name'] ) );
+	$csv_data = array_map(
+		function ( $line ) {
+			return str_getcsv( $line, ',', '"', '\\' );
+		},
+		file( $file )
+	);
 
-        // Group data by unique program
-        if (!isset($programs[$program_key])) {
-            $programs[$program_key] = [
-                'MajorName' => $data['MajorName'],
-                'DegreeName' => $data['DegreeName'],
-                'Colleges' => [$data['CollegeName']],
-                'Areas' => $data['AreasArray'],
-                'Concentrations' => [],
-            ];
-        }
+	if ( empty( $csv_data ) ) {
+		echo '<div class="error"><p>CSV file is empty.</p></div>';
+		return;
+	}
 
-        // Store unique colleges and areas
-        if (!in_array($data['CollegeName'], $programs[$program_key]['Colleges'])) {
-            $programs[$program_key]['Colleges'][] = $data['CollegeName'];
-        }
+	// Process CSV Data.
+	$header = array_map(
+		function ( $h ) {
+			// Trim spaces + remove UTF-8 BOM if present.
+			return preg_replace( '/^\xEF\xBB\xBF/', '', trim( $h ) );
+		},
+		$csv_data[0]
+	);
+	unset( $csv_data[0] );
 
-        foreach($data['AreasArray'] as $areaName) {
-            if (!in_array($areaName, $programs[$program_key]['Areas'])) {
-                $programs[$program_key]['Areas'][] = $areaName;
-            }
-        }
-        
-        
-        // If online and no concentration, add set concentration as 'none-online' or 'none' for sorting in dsu_create_program_post function
-        if ( empty($data['ConcentrationName'])) {
-            if($data['Online Status'] == '1') {
-                $programs[$program_key]['Concentrations'][$data['MajorName'] . ' (Online)'] = intval($data['Online Status']);
-                
-            } else {
+	$programs = array();
 
-                $programs[$program_key]['Concentrations']['none'] = intval($data['Online Status']);
-            }
-        } else {
-            // Add ' (Online)' tag to named online concentrations for sorting
-            $concentrationName = $data['Online Status'] == '1' ? $data['ConcentrationName'] . ' (Online)' : $data['ConcentrationName'];
-            // Store concentration with Online Status
-            $programs[$program_key]['Concentrations'][$concentrationName] = intval($data['Online Status']);
-        }
-    }
+	foreach ( $csv_data as $row ) {
+		$row  = array_map( 'trim', $row );
+		$data = array_combine( $header, $row );
 
-    // echo '<pre>';
-    // print_r($programs);
-    // echo '</pre>';
+		error_log( print_r( $data, true ) );
 
-    // Insert each program
-    foreach ($programs as $program_key => $program_data) {
-        dsu_create_program_post($program_data);
-    }
+		$program_key = $data['MajorName'] . ' - ' . $data['DegreeName'];
 
-    echo '<div class="updated"><p>Programs imported successfully.</p></div>';
+		// Split Areas into array .
+		$data['AreasArray'] = explode( ' | ', $data['AreaName'] );
+
+		// Group data by unique program .
+		if ( ! isset( $programs[ $program_key ] ) ) {
+			$programs[ $program_key ] = array(
+				'MajorName'      => $data['MajorName'],
+				'DegreeName'     => $data['DegreeName'],
+				'Colleges'       => array( $data['CollegeName'] ),
+				'Areas'          => $data['AreasArray'],
+				'Concentrations' => array(),
+			);
+		}
+
+		// Store unique colleges and areas .
+		if ( ! in_array( $data['CollegeName'], $programs[ $program_key ]['Colleges'], true ) ) {
+			$programs[ $program_key ]['Colleges'][] = $data['CollegeName'];
+		}
+
+		foreach ( $data['AreasArray'] as $area_name ) {
+			if ( ! in_array( $area_name, $programs[ $program_key ]['Areas'], true ) ) {
+				$programs[ $program_key ]['Areas'][] = $area_name;
+			}
+		}
+
+		// if online and no concentration, add set concentration as 'none-online' or 'none' for sorting in dsu_create_program_post function .
+		if ( empty( $data['ConcentrationName'] ) ) {
+			if ( '1' === $data['Online Status'] ) {
+				$programs[ $program_key ]['Concentrations'][ $data['MajorName'] . ' (Online)' ] = intval( $data['Online Status'] );
+
+			} else {
+
+				$programs[ $program_key ]['Concentrations']['none'] = intval( $data['Online Status'] );
+			}
+		} else {
+			// Add ' (Online)' tag to named online concentrations for sorting .
+			$concentration_name = '1' === $data['Online Status'] ? $data['ConcentrationName'] . ' (Online)' : $data['ConcentrationName'];
+			// Store concentration with Online Status .
+			$programs[ $program_key ]['Concentrations'][ $concentration_name ] = intval( $data['Online Status'] );
+		}
+	}
+
+	// Insert each program .
+	foreach ( $programs as $program_key => $program_data ) {
+		dsu_create_program_post( $program_data );
+	}
+
+	echo '<div class="updated"><p>Programs imported successfully.</p></div>';
 }
 
-// Create or Update Program Post
-function dsu_create_program_post($data) {
+/**
+ * Handle updating program URLs by college.
+ *
+ * @return void
+ */
+function dsu_handle_update_program_urls() {
+	if ( ! isset( $_POST['dsu_update_program_urls'] ) ) {
+		return;
+	}
 
-    // Decode HTML entities and sanitize input values
-    $program_name = sanitize_text_field(html_entity_decode($data['MajorName'], ENT_QUOTES, 'UTF-8'));
-    $degree_name = sanitize_text_field(html_entity_decode($data['DegreeName'], ENT_QUOTES, 'UTF-8'));
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'degree-search-utility' ) );
+	}
 
-    if (array_key_exists('none', $data['Concentrations'])) {
-        // If other concentrations exist for program, use program name instead of 
-        if(count($data['Concentrations']) > 1) {
-            $data['Concentrations'][$program_name] = $data['Concentrations']['none'];
-        // If only an unnamed offline concentration exists, prepare data to skip adding the concentration
-        } else {
-            $data['Concentrations'][''] = $data['Concentrations']['none'];
-        }
+	if ( ! isset( $_POST['dsu_update_program_urls_nonce'] ) ||
+		! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['dsu_update_program_urls_nonce'] ) ), 'dsu_update_program_urls_action' ) ) {
+		wp_die( esc_html__( 'Security check failed.', 'degree-search-utility' ) );
+	}
 
-        unset($data['Concentrations']['none']);
-    }
+	$college_id = isset( $_POST['college_id'] ) ? intval( $_POST['college_id'] ) : 0;
+	if ( ! $college_id ) {
+		echo '<div class="error"><p>Please select a valid college.</p></div>';
+		return;
+	}
 
-    $degrees = [$degree_name];
+	// Get the college homepage URL from ACF (or meta).
+	$college_url = get_field( 'college-url', 'college_' . $college_id );
+	if ( empty( $college_url ) ) {
+		echo '<div class="error"><p>Selected college does not have a homepage URL set.</p></div>';
+		return;
+	}
 
-    // Sanitize and decode all concentration names
-    $concentrations = [];
-    foreach ($data['Concentrations'] as $name => $online_status) {
-        $clean_name = sanitize_text_field(html_entity_decode($name, ENT_QUOTES, 'UTF-8'));
-        $concentrations[$clean_name] = $online_status;
-    }
+	// Get college name.
+	$college_term = get_term( $college_id, 'college' );
+	$college_name = ( $college_term && ! is_wp_error( $college_term ) ) ? $college_term->name : 'Unknown College';
 
-    $concentrations_string = implode(', ', array_keys($concentrations));
+	// Find all program posts linked to this college.
+	$programs = get_posts(
+		array(
+			'post_type'      => 'program',
+			'posts_per_page' => -1,
+			'tax_query'      => array(
+				array(
+					'taxonomy' => 'college',
+					'field'    => 'term_id',
+					'terms'    => $college_id,
+				),
+			),
+		)
+	);
 
-    // Sanitize and decode colleges and areas
-    $colleges = array_map(fn($c) => sanitize_text_field(html_entity_decode($c, ENT_QUOTES, 'UTF-8')), $data['Colleges']);
-    $areas = array_map(fn($a) => sanitize_text_field(html_entity_decode($a, ENT_QUOTES, 'UTF-8')), $data['Areas']);
+	if ( empty( $programs ) ) {
+		echo '<div class="updated"><p>No programs found for the selected college.</p></div>';
+		return;
+	}
 
-    // Determine degree type based on degree name
-    if (strpos($degree_name, 'B') === 0) {
-        $degree_type = 'Undergraduate';
-    } elseif (in_array($degree_name, ['C3', 'Undergraduate Certificate'])) {
-        $degree_type = 'Undergraduate Certificate';
-    } elseif (in_array($degree_name, ['C4', 'Graduate Certificate'])) {
-        $degree_type = 'Graduate Certificate';
-    } else {
-        $degree_type = 'Graduate';
-    }
+	$updated = 0;
+	$cleared = 0;
 
-    // Add comma-separated list of concentrations to post_content for searchability
-    $program_content = !empty($concentrations_string) ? "<!-- wp:paragraph --><p>" . esc_html($concentrations_string) . "</p><!-- /wp:paragraph -->" : '';
+	foreach ( $programs as $program ) {
 
-    $post_id = wp_insert_post([
-        'post_title'   => $program_name,
-        'post_type'    => 'program',
-        'post_status'  => 'publish',
-        'post_content' => $program_content,
-    ]);
+		$program_slug = sanitize_title( $program->post_title );
+		$is_online    = false;
 
-    if ($post_id) {
-        // Assign taxonomies
-        dsu_assign_terms($post_id, $degrees, 'degree');
-        dsu_assign_terms($post_id, $colleges, 'college');
-        dsu_assign_terms($post_id, $areas, 'area');
+		// Get degree terms.
+		$degree_terms = wp_get_post_terms( $program->ID, 'degree' );
+		if ( empty( $degree_terms ) || is_wp_error( $degree_terms ) ) {
+			continue;
+		}
 
-        // Assign degree type as an ACF field to the degree taxonomy
-        $degree_term = term_exists($degree_name, 'degree');
-        if ($degree_term && !is_wp_error($degree_term)) {
-            $term_id = $degree_term['term_id'] ?? $degree_term;
-            update_field('degree_type', $degree_type, 'degree_' . $term_id);
-        }
+		// Get concentration terms.
+		$concentration_terms = wp_get_post_terms( $program->ID, 'concentration' );
+		if ( empty( $concentration_terms ) || is_wp_error( $concentration_terms ) ) {
+			$is_online = false;
+		} else {
+			$is_online = get_field( 'online', 'concentration_' . $concentration_terms[0]->term_id ); // ACF field.
+		}
 
-        // Assign concentrations and set online status
-        foreach ($concentrations as $concentration_name => $online_status) {
-            $term = term_exists($concentration_name, 'concentration');
-            if (!$term) {
-                $term = wp_insert_term($concentration_name, 'concentration');
-            }
-            if (!is_wp_error($term)) {
-                $term_id = $term['term_id'] ?? $term;
-                wp_set_object_terms($post_id, $concentration_name, 'concentration', true);
-                update_field('online', $online_status, 'concentration_' . $term_id);
-            }
-        }
-    }
+		foreach ( $degree_terms as $degree ) {
+			$degree_slug = $degree->slug;
+			$degree_type = get_field( 'degree_type', 'degree_' . $degree->term_id ); // ACF field.
+
+			if ( empty( $degree_type ) ) {
+				continue;
+			}
+
+			// Make degreeTypeSlug URL-friendly.
+			$safe_degree_type = sanitize_title( $degree_type );
+			if ( 'undergraduate' === $safe_degree_type ) {
+				$degree_type_slug = 'undergraduate-programs';
+			} elseif ( 'graduate' === $safe_degree_type ) {
+				$degree_type_slug = 'graduate-programs';
+			} elseif ( 'graduate-certificate' === $safe_degree_type ) {
+				$degree_type_slug = 'graduate-certificates';
+			} elseif ( 'undergraduate-certificate' === $safe_degree_type ) {
+				$degree_type_slug = 'undergraduate-certificates';
+			} else {
+				continue;
+			}
+
+			// Build the URL only adding the degree slug if the program is not a certificate.
+			$url = trailingslashit( $is_online ? 'https://volsonline.utk.edu' : $college_url ) . 'academics/' . $degree_type_slug . '/' . $program_slug . ( stripos( $degree_type_slug, 'certificate' ) === false ? '-' . $degree_slug : '' ) . '/';
+
+			// Check response code.
+			$response = wp_remote_head( $url, array( 'timeout' => 5 ) );
+			$code     = wp_remote_retrieve_response_code( $response );
+
+			// Accept either 200 or 301 (permanent redirect) codes.
+			if ( 200 === $code || 301 === $code ) {
+				update_field( 'program-url', esc_url_raw( $url ), $program->ID ); // Save URL to program.
+				++$updated;
+			} else {
+				update_field( 'program-url', '', $program->ID ); // Clear URL if not valid.
+				++$cleared;
+			}
+		}
+	}
+
+	echo '<div class="updated"><p>' . esc_html( $college_name ) . ' URLs checked &nbsp;-&nbsp; Updated: <strong>' . intval( $updated ) . '</strong> &nbsp;<strong>|</strong>&nbsp; Cleared: <strong>' . intval( $cleared ) . '</strong></p></div>';
 }
+add_action( 'admin_init', 'dsu_handle_update_program_urls' );
 
-// Assign Terms to Post
-function dsu_assign_terms($post_id, $terms, $taxonomy) {
-    if (!empty($terms)) {
-        foreach ($terms as $term) {
-            if (!term_exists($term, $taxonomy)) {
-                wp_insert_term($term, $taxonomy);
-            }
-        }
-        wp_set_object_terms($post_id, $terms, $taxonomy);
-    }
-}
-
-// Delete All Programs
+/**
+ * Delete all program posts and associated taxonomy terms.
+ *
+ * @return void
+ */
 function dsu_delete_all_programs() {
-    if (!current_user_can('manage_options')) {
-        wp_die(__('You do not have sufficient permissions to perform this action.'));
-    }
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'degree-search-utility' ) );
+	}
 
-    $programs = get_posts([
-        'post_type'      => 'program',
-        'posts_per_page' => -1,
-        'post_status'    => 'any'
-    ]);
+	$programs = get_posts(
+		array(
+			'post_type'      => 'program',
+			'posts_per_page' => -1,
+			'post_status'    => 'any',
+		)
+	);
 
-    if (empty($programs)) {
-        echo '<div class="updated"><p>No programs found to delete.</p></div>';
-        return;
-    }
+	if ( empty( $programs ) ) {
+		echo '<div class="updated"><p>No programs found to delete.</p></div>';
+		return;
+	}
 
-    foreach ($programs as $program) {
-        wp_delete_post($program->ID, true);
-    }
+	foreach ( $programs as $program ) {
+		wp_delete_post( $program->ID, true );
+	}
 
-    // Delete all terms associated with programs
-    $taxonomies = ['degree', 'college', 'area', 'concentration'];
-    foreach ($taxonomies as $taxonomy) {
-        $terms = get_terms(['taxonomy' => $taxonomy, 'hide_empty' => false]);
-        foreach ($terms as $term) {
-            wp_delete_term($term->term_id, $taxonomy);
-        }
-    }
+	// Delete all terms associated with programs.
+	$taxonomies = array( 'degree', 'college', 'area', 'concentration' );
+	foreach ( $taxonomies as $taxonomy ) {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => $taxonomy,
+				'hide_empty' => false,
+			)
+		);
+		foreach ( $terms as $term ) {
+			wp_delete_term( $term->term_id, $taxonomy );
+		}
+	}
 
-    echo '<div class="updated"><p>All programs and associated data have been deleted.</p></div>';
+	echo '<div class="updated"><p>All programs and associated data have been deleted.</p></div>';
+}
+
+/**
+ * Create or update a program post and assign its taxonomies and fields.
+ *
+ * @param array $data Program data including majors, degrees, concentrations, colleges, and areas.
+ * @return void
+ */
+function dsu_create_program_post( $data ) {
+
+	// Decode HTML entities and sanitize input values.
+	$program_name = sanitize_text_field( html_entity_decode( $data['MajorName'], ENT_QUOTES, 'UTF-8' ) );
+	$degree_name  = sanitize_text_field( html_entity_decode( $data['DegreeName'], ENT_QUOTES, 'UTF-8' ) );
+
+	if ( array_key_exists( 'none', $data['Concentrations'] ) ) {
+		// If other concentrations exist for program, use program name instead of.
+		if ( count( $data['Concentrations'] ) > 1 ) {
+			$data['Concentrations'][ $program_name ] = $data['Concentrations']['none'];
+			// If only an unnamed offline concentration exists, prepare data to skip adding the concentration.
+		} else {
+			$data['Concentrations'][''] = $data['Concentrations']['none'];
+		}
+
+		unset( $data['Concentrations']['none'] );
+	}
+
+	$degrees = array( $degree_name );
+
+	// Sanitize and decode all concentration names.
+	$concentrations = array();
+	foreach ( $data['Concentrations'] as $name => $online_status ) {
+		$clean_name                    = sanitize_text_field( html_entity_decode( $name, ENT_QUOTES, 'UTF-8' ) );
+		$concentrations[ $clean_name ] = $online_status;
+	}
+
+	$concentrations_string = implode( ', ', array_keys( $concentrations ) );
+
+	// Sanitize and decode colleges and areas.
+	$colleges = array_map( fn( $c ) => sanitize_text_field( html_entity_decode( $c, ENT_QUOTES, 'UTF-8' ) ), $data['Colleges'] );
+	$areas    = array_map( fn( $a ) => sanitize_text_field( html_entity_decode( $a, ENT_QUOTES, 'UTF-8' ) ), $data['Areas'] );
+
+	// Determine degree type based on degree name.
+	if ( strpos( $degree_name, 'B' ) === 0 ) {
+		$degree_type = 'Undergraduate';
+	} elseif ( in_array( $degree_name, array( 'C3', 'Undergraduate Certificate' ), true ) ) {
+		$degree_type = 'Undergraduate Certificate';
+	} elseif ( in_array( $degree_name, array( 'C4', 'Graduate Certificate' ), true ) ) {
+		$degree_type = 'Graduate Certificate';
+	} else {
+		$degree_type = 'Graduate';
+	}
+
+	// Add comma-separated list of concentrations to post_content for searchability.
+	$program_content = ! empty( $concentrations_string ) ? '<!-- wp:paragraph --><p>' . esc_html( $concentrations_string ) . '</p><!-- /wp:paragraph -->' : '';
+
+	$post_id = wp_insert_post(
+		array(
+			'post_title'   => $program_name,
+			'post_type'    => 'program',
+			'post_status'  => 'publish',
+			'post_content' => $program_content,
+		)
+	);
+
+	if ( $post_id ) {
+		// Assign taxonomies.
+		dsu_assign_terms( $post_id, $degrees, 'degree' );
+		dsu_assign_terms( $post_id, $colleges, 'college' );
+		dsu_assign_terms( $post_id, $areas, 'area' );
+
+		// Assign degree type as an ACF field to the degree taxonomy.
+		$degree_term = term_exists( $degree_name, 'degree' );
+		if ( $degree_term && ! is_wp_error( $degree_term ) ) {
+			$term_id = $degree_term['term_id'] ?? $degree_term;
+			update_field( 'degree_type', $degree_type, 'degree_' . $term_id );
+		}
+
+		// Assign concentrations and set online status.
+		foreach ( $concentrations as $concentration_name => $online_status ) {
+			$term = term_exists( $concentration_name, 'concentration' );
+			if ( ! $term ) {
+				$term = wp_insert_term( $concentration_name, 'concentration' );
+			}
+			if ( ! is_wp_error( $term ) ) {
+				$term_id = $term['term_id'] ?? $term;
+				wp_set_object_terms( $post_id, $concentration_name, 'concentration', true );
+				update_field( 'online', $online_status, 'concentration_' . $term_id );
+			}
+		}
+	}
+}
+
+/**
+ * Assign taxonomy terms to a program post.
+ *
+ * @param int    $post_id  Post ID.
+ * @param array  $terms    Terms to assign.
+ * @param string $taxonomy Taxonomy slug.
+ * @return void
+ */
+function dsu_assign_terms( $post_id, $terms, $taxonomy ) {
+	if ( ! empty( $terms ) ) {
+		foreach ( $terms as $term ) {
+			if ( ! term_exists( $term, $taxonomy ) ) {
+				wp_insert_term( $term, $taxonomy );
+			}
+		}
+		wp_set_object_terms( $post_id, $terms, $taxonomy );
+	}
 }

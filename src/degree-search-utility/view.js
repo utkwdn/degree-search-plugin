@@ -283,13 +283,12 @@ export default function View() {
 	};
 
 	const resetAllFilters = () => {
-		handleFilterChange('search_term', '', setSearchTerm);
-		handleFilterChange('degree_type', '', setDegreeTypeFilter);
-		handleFilterChange('area', '', setAreaFilter);
-		handleFilterChange('college', '', setCollegeFilter);
-		handleFilterChange('online', '', setOnlineFilter);
+		handleFilterChange( 'search_term', '', setSearchTerm );
+		handleFilterChange( 'degree_type', '', setDegreeTypeFilter );
+		handleFilterChange( 'area', '', setAreaFilter );
+		handleFilterChange( 'college', '', setCollegeFilter );
+		handleFilterChange( 'online', '', setOnlineFilter );
 	};
-
 
 	const updateURLParams = ( key, value ) => {
 		const params = new URLSearchParams( window.location.search );
@@ -314,7 +313,10 @@ export default function View() {
 						{ Array.from( { length: 3 } ).map( ( _, subIndex ) => (
 							<ul key={ subIndex } className="placeholder-list">
 								<Placeholder as="li" animation="glow">
-									<Placeholder size="lg" style={ { width: `100%`, height: 32 } } />
+									<Placeholder
+										size="lg"
+										style={ { width: `100%`, height: 32 } }
+									/>
 								</Placeholder>
 							</ul>
 						) ) }
@@ -341,15 +343,15 @@ export default function View() {
 
 	const ResetIcon = () => {
 		return (
-			<svg 
-				xmlns="http://www.w3.org/2000/svg" 
-				width="16" 
-				height="16" 
-				viewBox="0 0 16 16" 
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="16"
+				height="16"
+				viewBox="0 0 16 16"
 				fill="currentColor"
 				aria-hidden="true"
 			>
-				<path d="M8 15C9.95417 15 11.6094 14.3219 12.9656 12.9656C14.3219 11.6094 15 9.95417 15 8C15 6.04583 14.3219 4.39062 12.9656 3.03437C11.6094 1.67812 9.95417 1 8 1C6.99375 1 6.03125 1.20781 5.1125 1.62344C4.19375 2.03906 3.40625 2.63333 2.75 3.40625V1H1V7.125H7.125V5.375H3.45C3.91667 4.55833 4.55469 3.91667 5.36406 3.45C6.17344 2.98333 7.05208 2.75 8 2.75C9.45833 2.75 10.6979 3.26042 11.7188 4.28125C12.7396 5.30208 13.25 6.54167 13.25 8C13.25 9.45833 12.7396 10.6979 11.7188 11.7188C10.6979 12.7396 9.45833 13.25 8 13.25C6.87708 13.25 5.86354 12.9292 4.95938 12.2875C4.05521 11.6458 3.42083 10.8 3.05625 9.75H1.21875C1.62708 11.2958 2.45833 12.5573 3.7125 13.5344C4.96667 14.5115 6.39583 15 8 15Z"/>
+				<path d="M8 15C9.95417 15 11.6094 14.3219 12.9656 12.9656C14.3219 11.6094 15 9.95417 15 8C15 6.04583 14.3219 4.39062 12.9656 3.03437C11.6094 1.67812 9.95417 1 8 1C6.99375 1 6.03125 1.20781 5.1125 1.62344C4.19375 2.03906 3.40625 2.63333 2.75 3.40625V1H1V7.125H7.125V5.375H3.45C3.91667 4.55833 4.55469 3.91667 5.36406 3.45C6.17344 2.98333 7.05208 2.75 8 2.75C9.45833 2.75 10.6979 3.26042 11.7188 4.28125C12.7396 5.30208 13.25 6.54167 13.25 8C13.25 9.45833 12.7396 10.6979 11.7188 11.7188C10.6979 12.7396 9.45833 13.25 8 13.25C6.87708 13.25 5.86354 12.9292 4.95938 12.2875C4.05521 11.6458 3.42083 10.8 3.05625 9.75H1.21875C1.62708 11.2958 2.45833 12.5573 3.7125 13.5344C4.96667 14.5115 6.39583 15 8 15Z" />
 			</svg>
 		);
 	};
@@ -654,7 +656,7 @@ export default function View() {
 										<span>Online</span> <CloseIcon />
 									</button>
 								) }
-								{/* Reset Filters button */}
+								{ /* Reset Filters button */ }
 								<button
 									className="programs-reset-filters-chip"
 									onClick={ resetAllFilters }
@@ -729,10 +731,26 @@ export default function View() {
 															key={ index }
 															className="program-entry-text program-entry-text--bold"
 														>
-															{ degree.name }
-															{ /* <a href={degree.url} target="_blank" rel="noopener noreferrer">
-                                                            {degree.name}
-                                                        </a> */ }
+															{ /* { degree.name } */ }
+
+															{ /* Only link program if URL is set and not an empty string */ }
+															{ degree.url &&
+															degree.url.trim() !==
+																'' ? (
+																<a
+																	href={
+																		degree.url
+																	}
+																	target="_blank"
+																	rel="noopener noreferrer"
+																>
+																	{
+																		degree.name
+																	}
+																</a>
+															) : (
+																degree.name
+															) }
 														</li>
 													)
 												) }

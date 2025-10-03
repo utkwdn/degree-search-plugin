@@ -779,4 +779,41 @@ if ( function_exists( 'acf_add_local_field_group' ) ) :
 		)
 	);
 
+	acf_add_local_field_group(
+		array(
+			'key'             => 'group_college_details',
+			'title'           => 'College Details',
+			'fields'          => array(
+				array(
+					'key'               => 'field_college_url',
+					'label'             => 'College Homepage URL',
+					'name'              => 'college-url',
+					'type'              => 'url',
+					'required'          => 0,
+					'conditional_logic' => 0,
+					'wrapper'           => array(
+						'width' => '',
+						'class' => '',
+						'id'    => '',
+					),
+					'show_in_graphql'   => 1,
+					'default_value'     => '',
+					'placeholder'       => '',
+				),
+			),
+			'location'        => array(
+				array(
+					array(
+						'param'    => 'taxonomy',
+						'operator' => '==',
+						'value'    => 'college',
+					),
+				),
+			),
+			'active'          => true,
+			'show_in_rest'    => 1,
+			'show_in_graphql' => 1,
+		)
+	);
+
 	endif;
