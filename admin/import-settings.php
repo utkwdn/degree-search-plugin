@@ -54,8 +54,9 @@ function dsu_render_csv_import_page() {
 			<form method="post">
 				<?php wp_nonce_field( 'dsu_update_program_urls_action', 'dsu_update_program_urls_nonce' ); ?>
 				<!-- <label for="college_select">Select College:</label> -->
-				<select name="college_id" id="college_select" required>
-					<option value="">-- Select College --</option>
+				<select name="url_category" id="college_select" required>
+					<option value="">-- Select College / Vols Online --</option>
+					<option value="online">Vols Online</option>
 					<?php
 					$colleges = get_terms(
 						array(
@@ -145,11 +146,8 @@ function dsu_handle_csv_upload() {
 	$programs = array();
 
 	foreach ( $csv_data as $row ) {
-		$row  = array_map( 'trim', $row );
-		$data = array_combine( $header, $row );
-
-		error_log( print_r( $data, true ) );
-
+		$row         = array_map( 'trim', $row );
+		$data        = array_combine( $header, $row );
 		$program_key = $data['MajorName'] . ' - ' . $data['DegreeName'];
 
 		// Split Areas into array .
@@ -203,7 +201,7 @@ function dsu_handle_csv_upload() {
 }
 
 /**
- * Handle updating program URLs by college.
+ * Handle updating program URLs by college or online status.
  *
  * @return void
  */
@@ -216,42 +214,111 @@ function dsu_handle_update_program_urls() {
 		wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'degree-search-utility' ) );
 	}
 
-	if ( ! isset( $_POST['dsu_update_program_urls_nonce'] ) ||
-		! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['dsu_update_program_urls_nonce'] ) ), 'dsu_update_program_urls_action' ) ) {
+	if ( ! isset( $_POST['dsu_update_program_urls_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['dsu_update_program_urls_nonce'] ) ), 'dsu_update_program_urls_action' ) ) {
 		wp_die( esc_html__( 'Security check failed.', 'degree-search-utility' ) );
 	}
 
-	$college_id = isset( $_POST['college_id'] ) ? intval( $_POST['college_id'] ) : 0;
-	if ( ! $college_id ) {
+	// Sanitize numeric or "online" choice from form.
+	$url_category = isset( $_POST['url_category'] ) ?
+		( is_numeric( $_POST['url_category'] ) ?
+			intval( $_POST['url_category'] ) :
+			sanitize_title(
+				wp_unslash( $_POST['url_category'] )
+			)
+		) : 0;
+
+	if ( ! $url_category ) {
 		echo '<div class="error"><p>Please select a valid college.</p></div>';
 		return;
 	}
 
-	// Get the college homepage URL from ACF (or meta).
-	$college_url = get_field( 'college-url', 'college_' . $college_id );
-	if ( empty( $college_url ) ) {
-		echo '<div class="error"><p>Selected college does not have a homepage URL set.</p></div>';
-		return;
-	}
-
-	// Get college name.
-	$college_term = get_term( $college_id, 'college' );
-	$college_name = ( $college_term && ! is_wp_error( $college_term ) ) ? $college_term->name : 'Unknown College';
-
-	// Find all program posts linked to this college.
-	$programs = get_posts(
+	// Get online concentrations once for reuse.
+	$online_concentrations = get_terms(
 		array(
-			'post_type'      => 'program',
-			'posts_per_page' => -1,
-			'tax_query'      => array(
+			'taxonomy'   => 'concentration',
+			'hide_empty' => false,
+			'meta_query' => array(
 				array(
-					'taxonomy' => 'college',
-					'field'    => 'term_id',
-					'terms'    => $college_id,
+					'key'     => 'online',
+					'value'   => '1', // ACF stores true as "1".
+					'compare' => '=',
 				),
 			),
 		)
 	);
+
+	if ( is_wp_error( $online_concentrations ) ) {
+		echo '<div class="error"><p>Error retrieving online concentrations.</p></div>';
+		return;
+	}
+
+	if ( 'online' === $url_category ) {
+		// Hard code base URL and group name for online programs.
+		$base_url   = 'https://volsonline.utk.edu';
+		$group_name = 'Vols Online';
+
+		if ( empty( $online_concentrations ) ) {
+			echo '<div class="error"><p>No online programs found.</p></div>';
+			return;
+		}
+
+		// Get all programs linked to online concentrations.
+		$programs = get_posts(
+			array(
+				'post_type'      => 'program',
+				'posts_per_page' => -1,
+				'tax_query'      => array(
+					array(
+						'taxonomy' => 'concentration',
+						'field'    => 'term_id',
+						'terms'    => wp_list_pluck( $online_concentrations, 'term_id' ),
+					),
+				),
+			)
+		);
+
+	} else {
+		$college_id = $url_category;
+
+		// Get the college homepage URL from ACF.
+		$base_url = get_field( 'college-url', 'college_' . $college_id );
+
+		if ( empty( $base_url ) ) {
+			echo '<div class="error"><p>Selected college does not have a homepage URL set.</p></div>';
+			return;
+		}
+
+		// Get college name.
+		$college_term = get_term( $college_id, 'college' );
+		$group_name   = ( $college_term && ! is_wp_error( $college_term ) ) ? $college_term->name : 'Unknown College';
+
+		// Build tax query to include college but exclude online concentrations.
+		$tax_query = array(
+			array(
+				'taxonomy' => 'college',
+				'field'    => 'term_id',
+				'terms'    => $college_id,
+			),
+		);
+
+		if ( ! empty( $online_concentrations ) ) {
+			$tax_query[] = array(
+				'taxonomy' => 'concentration',
+				'field'    => 'term_id',
+				'terms'    => wp_list_pluck( $online_concentrations, 'term_id' ),
+				'operator' => 'NOT IN',
+			);
+		}
+
+		// Find all non-online program posts linked to this college.
+		$programs = get_posts(
+			array(
+				'post_type'      => 'program',
+				'posts_per_page' => -1,
+				'tax_query'      => $tax_query,
+			)
+		);
+	}
 
 	if ( empty( $programs ) ) {
 		echo '<div class="updated"><p>No programs found for the selected college.</p></div>';
@@ -264,20 +331,11 @@ function dsu_handle_update_program_urls() {
 	foreach ( $programs as $program ) {
 
 		$program_slug = sanitize_title( $program->post_title );
-		$is_online    = false;
 
 		// Get degree terms.
 		$degree_terms = wp_get_post_terms( $program->ID, 'degree' );
 		if ( empty( $degree_terms ) || is_wp_error( $degree_terms ) ) {
 			continue;
-		}
-
-		// Get concentration terms.
-		$concentration_terms = wp_get_post_terms( $program->ID, 'concentration' );
-		if ( empty( $concentration_terms ) || is_wp_error( $concentration_terms ) ) {
-			$is_online = false;
-		} else {
-			$is_online = get_field( 'online', 'concentration_' . $concentration_terms[0]->term_id ); // ACF field.
 		}
 
 		foreach ( $degree_terms as $degree ) {
@@ -288,7 +346,7 @@ function dsu_handle_update_program_urls() {
 				continue;
 			}
 
-			// Make degreeTypeSlug URL-friendly.
+			// Update degree type to match expected URL structure.
 			$safe_degree_type = sanitize_title( $degree_type );
 			if ( 'undergraduate' === $safe_degree_type ) {
 				$degree_type_slug = 'undergraduate-programs';
@@ -303,14 +361,14 @@ function dsu_handle_update_program_urls() {
 			}
 
 			// Build the URL only adding the degree slug if the program is not a certificate.
-			$url = trailingslashit( $is_online ? 'https://volsonline.utk.edu' : $college_url ) . 'academics/' . $degree_type_slug . '/' . $program_slug . ( stripos( $degree_type_slug, 'certificate' ) === false ? '-' . $degree_slug : '' ) . '/';
+			$url = trailingslashit( $base_url ) . 'academics/' . $degree_type_slug . '/' . $program_slug . ( stripos( $degree_type_slug, 'certificate' ) === false ? '-' . $degree_slug : '' ) . '/';
 
 			// Check response code.
 			$response = wp_remote_head( $url, array( 'timeout' => 5 ) );
 			$code     = wp_remote_retrieve_response_code( $response );
 
-			// Accept either 200 or 301 (permanent redirect) codes.
-			if ( 200 === $code || 301 === $code ) {
+			// Save URL only for 200 responses.
+			if ( 200 === $code ) {
 				update_field( 'program-url', esc_url_raw( $url ), $program->ID ); // Save URL to program.
 				++$updated;
 			} else {
@@ -320,7 +378,7 @@ function dsu_handle_update_program_urls() {
 		}
 	}
 
-	echo '<div class="updated"><p>' . esc_html( $college_name ) . ' URLs checked &nbsp;-&nbsp; Updated: <strong>' . intval( $updated ) . '</strong> &nbsp;<strong>|</strong>&nbsp; Cleared: <strong>' . intval( $cleared ) . '</strong></p></div>';
+	echo '<div class="updated"><p>' . esc_html( $group_name ) . ' URLs checked &nbsp;-&nbsp; Updated: <strong>' . intval( $updated ) . '</strong> &nbsp;<strong>|</strong>&nbsp; Cleared: <strong>' . intval( $cleared ) . '</strong></p></div>';
 }
 add_action( 'admin_init', 'dsu_handle_update_program_urls' );
 
