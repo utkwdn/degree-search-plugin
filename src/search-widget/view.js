@@ -22,7 +22,7 @@ export default function View( { areaOfStudy, degreeSearchUrl } ) {
 		if ( degreeSearchUrl ) {
 			window.location.href = generateLink( degreeSearchUrl, {
 				area: areaOfStudy,
-				search: searchValue,
+				search_term: searchValue,
 			} );
 		}
 	};
@@ -69,7 +69,7 @@ export default function View( { areaOfStudy, degreeSearchUrl } ) {
 								href={ generateLink( degreeSearchUrl, {
 									...params,
 									area: areaOfStudy,
-									search: searchValue,
+									search_term: searchValue,
 								} ) }
 							>
 								{ label }
