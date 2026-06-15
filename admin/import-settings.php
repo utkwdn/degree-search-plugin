@@ -51,7 +51,7 @@ function dsu_render_csv_import_page() {
 		<!-- Update Program URLs -->
 		<div class="dsu-section" style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid #d4d4d4;">
 			<h2>Update Program URLs</h2>
-			<form method="post">
+			<form method="post" id="dsu_update_program_urls_form">
 				<?php wp_nonce_field( 'dsu_update_program_urls_action', 'dsu_update_program_urls_nonce' ); ?>
 				<!-- <label for="college_select">Select College:</label> -->
 				<select name="url_category" id="college_select" required>
@@ -73,7 +73,8 @@ function dsu_render_csv_import_page() {
 					}
 					?>
 				</select>
-				<input type="submit" name="dsu_update_program_urls" class="button button-primary" value="Update Links">
+				<input type="submit" id="dsu_update_program_urls" name="dsu_update_program_urls" class="button button-primary" value="Update Links">
+				<span id="dsu_update_spinner" class="spinner" aria-hidden="true" style="float:none;margin:0 10px;"></span>
 			</form>
 		</div>
 
@@ -85,6 +86,20 @@ function dsu_render_csv_import_page() {
 				<input type="submit" name="dsu_delete_all_programs" class="button-secondary" value="Delete All Programs" onclick="return confirm('Are you sure you want to delete all programs? This action cannot be undone.');">
 			</form>
 		</div>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				const form = document.querySelector('#dsu_update_program_urls_form');
+				if (!form) {
+					return;
+				}
+				form.addEventListener('submit', () => {
+					document
+						.getElementById('dsu_update_spinner')
+						.classList.add('is-active');
+				});
+			});
+		</script>
 	</div>
 	<?php
 
