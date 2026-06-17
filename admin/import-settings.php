@@ -51,7 +51,7 @@ function dsu_render_csv_import_page() {
 		<!-- Update Program URLs -->
 		<div class="dsu-section" style="margin-bottom: 30px; padding-bottom: 30px; border-bottom: 1px solid #d4d4d4;">
 			<h2>Update Program URLs</h2>
-			<form method="post">
+			<form method="post" id="dsu_update_program_urls_form">
 				<?php wp_nonce_field( 'dsu_update_program_urls_action', 'dsu_update_program_urls_nonce' ); ?>
 				<!-- <label for="college_select">Select College:</label> -->
 				<select name="url_category" id="college_select" required>
@@ -73,7 +73,8 @@ function dsu_render_csv_import_page() {
 					}
 					?>
 				</select>
-				<input type="submit" name="dsu_update_program_urls" class="button button-primary" value="Update Links">
+				<input type="submit" id="dsu_update_program_urls" name="dsu_update_program_urls" class="button button-primary" value="Update Links">
+				<span id="dsu_update_spinner" class="spinner" aria-hidden="true" style="float:none;margin:0 10px;"></span>
 			</form>
 		</div>
 
@@ -85,6 +86,20 @@ function dsu_render_csv_import_page() {
 				<input type="submit" name="dsu_delete_all_programs" class="button-secondary" value="Delete All Programs" onclick="return confirm('Are you sure you want to delete all programs? This action cannot be undone.');">
 			</form>
 		</div>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', () => {
+				const form = document.querySelector('#dsu_update_program_urls_form');
+				if (!form) {
+					return;
+				}
+				form.addEventListener('submit', () => {
+					document
+						.getElementById('dsu_update_spinner')
+						.classList.add('is-active');
+				});
+			});
+		</script>
 	</div>
 	<?php
 
@@ -325,6 +340,38 @@ function dsu_handle_update_program_urls() {
 		return;
 	}
 
+	// Create CSV report.
+	$upload_dir = wp_upload_dir();
+	$report_dir = trailingslashit( $upload_dir['basedir'] ) . 'degree-search-reports';
+
+	wp_mkdir_p( $report_dir );
+
+	$filename = sprintf(
+		'program-url-report-%s.csv',
+		current_time( 'Y-m-d-H-i-s' )
+	);
+
+	$report_path = trailingslashit( $report_dir ) . $filename;
+	$report_url  = trailingslashit( $upload_dir['baseurl'] ) . 'degree-search-reports/' . $filename;
+
+	$csv = fopen( $report_path, 'w' );
+
+	if ( $csv ) {
+		fputcsv(
+			$csv,
+			array(
+				'Program',
+				'Degree',
+				'URL',
+				'HTTP Code',
+				'Result',
+			),
+			',',
+			'"',
+			'\\'
+		);
+	}
+
 	$updated = 0;
 	$cleared = 0;
 
@@ -346,39 +393,103 @@ function dsu_handle_update_program_urls() {
 				continue;
 			}
 
-			// Update degree type to match expected URL structure.
 			$safe_degree_type = sanitize_title( $degree_type );
-			if ( 'undergraduate' === $safe_degree_type ) {
-				$degree_type_slug = 'undergraduate-programs';
-			} elseif ( 'graduate' === $safe_degree_type ) {
-				$degree_type_slug = 'graduate-programs';
-			} elseif ( 'graduate-certificate' === $safe_degree_type ) {
-				$degree_type_slug = 'graduate-certificates';
-			} elseif ( 'undergraduate-certificate' === $safe_degree_type ) {
-				$degree_type_slug = 'undergraduate-certificates';
+
+			// Format degree type to match expected URL structure.
+			if ( 'online' === $url_category ) {
+
+				$parent_path = 'program';
+
+				if ( str_contains( strtolower( $degree_type ), 'certificate' ) ) {
+					$degree_type_slug = 'certificate';
+				} elseif ( in_array( strtolower( $degree_slug[0] ), array( 'p', 'd', 'e', 'j' ), true ) ) {
+					$degree_type_slug = 'doctoral';
+				} elseif ( str_starts_with( strtolower( $degree_slug ), 'b' ) ) {
+					$degree_type_slug = 'bachelors';
+				} elseif ( str_starts_with( strtolower( $degree_slug ), 'm' ) ) {
+					$degree_type_slug = 'masters';
+				} else {
+					continue;
+				}
 			} else {
-				continue;
+
+				$parent_path = 'academics';
+
+				if ( 'undergraduate' === $safe_degree_type ) {
+					$degree_type_slug = 'undergraduate-programs';
+				} elseif ( 'graduate' === $safe_degree_type ) {
+					$degree_type_slug = 'graduate-programs';
+				} elseif ( 'graduate-certificate' === $safe_degree_type ) {
+					$degree_type_slug = 'graduate-certificates';
+				} elseif ( 'undergraduate-certificate' === $safe_degree_type ) {
+					$degree_type_slug = 'undergraduate-certificates';
+				} else {
+					continue;
+				}
 			}
 
 			// Build the URL only adding the degree slug if the program is not a certificate.
-			$url = trailingslashit( $base_url ) . 'academics/' . $degree_type_slug . '/' . $program_slug . ( stripos( $degree_type_slug, 'certificate' ) === false ? '-' . $degree_slug : '' ) . '/';
+			// On Campus example: https://csw.utk.edu/academics/undergraduate-programs/social-work-bssw/.
+			// Online example:    https://volsonline.utk.edu/program/masters/mathematics-mmath.
+			$url = trailingslashit( $base_url ) . $parent_path . '/' . $degree_type_slug . '/' . $program_slug . ( stripos( $degree_type_slug, 'certificate' ) === false ? '-' . $degree_slug : '' ) . '/';
 
 			// Check response code.
 			$response = wp_remote_head( $url, array( 'timeout' => 5 ) );
-			$code     = wp_remote_retrieve_response_code( $response );
+			if ( is_wp_error( $response ) ) {
 
-			// Save URL only for 200 responses.
-			if ( 200 === $code ) {
-				update_field( 'program-url', esc_url_raw( $url ), $program->ID ); // Save URL to program.
-				++$updated;
-			} else {
-				update_field( 'program-url', '', $program->ID ); // Clear URL if not valid.
+				$code   = 'ERROR';
+				$result = $response->get_error_message();
+
+				update_field( 'program-url', '', $program->ID );
 				++$cleared;
+
+			} else {
+
+				$code = wp_remote_retrieve_response_code( $response );
+
+				if ( 200 === $code ) {
+
+					update_field( 'program-url', esc_url_raw( $url ), $program->ID );
+					$result = 'Updated';
+					++$updated;
+
+				} else {
+
+					update_field( 'program-url', '', $program->ID );
+					$result = 'Cleared';
+					++$cleared;
+				}
+			}
+
+			if ( $csv ) {
+				fputcsv(
+					$csv,
+					array(
+						$program->post_title,
+						$degree->name,
+						$url,
+						$code,
+						$result,
+					),
+					',',
+					'"',
+					'\\'
+				);
 			}
 		}
 	}
 
-	echo '<div class="updated"><p>' . esc_html( $group_name ) . ' URLs checked &nbsp;-&nbsp; Updated: <strong>' . intval( $updated ) . '</strong> &nbsp;<strong>|</strong>&nbsp; Cleared: <strong>' . intval( $cleared ) . '</strong></p></div>';
+	if ( $csv ) {
+		fclose( $csv );
+	}
+
+	printf(
+		'<div class="updated"><p>%1$s URLs checked &nbsp;-&nbsp; Updated: <strong>%2$d</strong> &nbsp;<strong>|</strong>&nbsp; Cleared: <strong>%3$d</strong><br><br><a class="button button-secondary" href="%4$s" download>Download URL Report (CSV)</a></p></div>',
+		esc_html( $group_name ),
+		intval( $updated ),
+		intval( $cleared ),
+		esc_url( $report_url )
+	);
 }
 add_action( 'admin_init', 'dsu_handle_update_program_urls' );
 

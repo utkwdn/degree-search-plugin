@@ -1,6 +1,6 @@
 {
 	"name": "degree-search-plugin",
-	"version": "1.2.1",
+	"version": "1.3.0",
 	"description": "A custom plugin to add, edit, and display degree programs",
 	"author": "The University of Tennessee, Knoxville",
 	"homepage": "https://github.com/utkwdn/degree-search-plugin",
