@@ -76,6 +76,8 @@ function dsu_render_csv_import_page() {
 				<input type="submit" id="dsu_update_program_urls" name="dsu_update_program_urls" class="button button-primary" value="Update Links">
 				<span id="dsu_update_spinner" class="spinner" aria-hidden="true" style="float:none;margin:0 10px;"></span>
 			</form>
+			<div id="dsu_update_progress" style="margin-top:15px;"></div>
+			<div id="dsu_update_result" style="margin-top:15px;"></div>
 		</div>
 
 		<!-- Delete All Programs Button -->
@@ -93,10 +95,86 @@ function dsu_render_csv_import_page() {
 				if (!form) {
 					return;
 				}
-				form.addEventListener('submit', () => {
-					document
-						.getElementById('dsu_update_spinner')
-						.classList.add('is-active');
+
+				const spinner   = document.getElementById('dsu_update_spinner');
+				const progress  = document.getElementById('dsu_update_progress');
+				const result    = document.getElementById('dsu_update_result');
+				const button    = document.getElementById('dsu_update_program_urls');
+				const batchSize = 10;
+
+				const stop = (html) => {
+					spinner.classList.remove('is-active');
+					button.disabled = false;
+					progress.innerHTML = '';
+					if (html) {
+						result.innerHTML = html;
+					}
+				};
+
+				const post = async (params) => {
+					const res = await fetch(ajaxurl, {
+						method: 'POST',
+						body: new URLSearchParams(params),
+					});
+					return res.json();
+				};
+
+				form.addEventListener('submit', async (e) => {
+					e.preventDefault();
+
+					const category = form.querySelector('#college_select').value;
+					if (!category) {
+						return;
+					}
+					const nonce = form.querySelector('#dsu_update_program_urls_nonce').value;
+
+					button.disabled = true;
+					spinner.classList.add('is-active');
+					result.innerHTML = '';
+					progress.textContent = 'Preparing…';
+
+					let start;
+					try {
+						start = await post({ action: 'dsu_start_url_update', nonce, url_category: category });
+					} catch (err) {
+						return stop('<div class="error"><p>Request failed. Please try again.</p></div>');
+					}
+					if (!start.success) {
+						return stop('<div class="error"><p>' + (start.data?.message || 'Error.') + '</p></div>');
+					}
+
+					const batchId = start.data.batch_id;
+					const total   = start.data.total;
+					let offset    = 0;
+					let last      = null;
+
+					while (offset < total) {
+						let batch;
+						try {
+							batch = await post({ action: 'dsu_process_url_batch', nonce, batch_id: batchId, offset });
+						} catch (err) {
+							return stop('<div class="error"><p>Batch failed at ' + offset + ' of ' + total + '.</p></div>');
+						}
+						if (!batch.success) {
+							return stop('<div class="error"><p>' + (batch.data?.message || 'Error.') + '</p></div>');
+						}
+
+						last = batch.data;
+						progress.textContent = 'Checked ' + last.processed + ' of ' + last.total + ' URLs…';
+						offset += batchSize;
+					}
+
+					if (last) {
+						stop(
+							'<div class="updated"><p>' + last.group_name +
+							' URLs checked &nbsp;-&nbsp; Updated: <strong>' + last.updated +
+							'</strong> &nbsp;<strong>|</strong>&nbsp; Cleared: <strong>' + last.cleared +
+							'</strong><br><br><a class="button button-secondary" href="' + last.report_url +
+							'" download>Download URL Report (CSV)</a></p></div>'
+						);
+					} else {
+						stop('');
+					}
 				});
 			});
 		</script>
@@ -216,38 +294,54 @@ function dsu_handle_csv_upload() {
 }
 
 /**
- * Handle updating program URLs by college or online status.
+ * Check a URL's HTTP status, retrying on 429 with backoff.
+ * Does not follow redirects - 301 returned directly.
  *
- * @return void
+ * @param string $url         URL to check.
+ * @param int    $max_retries Max retry attempts on a 429.
+ * @return int|WP_Error HTTP status code, or WP_Error on transport failure.
  */
-function dsu_handle_update_program_urls() {
-	if ( ! isset( $_POST['dsu_update_program_urls'] ) ) {
-		return;
-	}
+function dsu_check_url( $url, $max_retries = 3 ) {
+	$args = array(
+		'timeout'     => 10,
+		'redirection' => 0,
+		'user-agent'  => 'DegreeSearchUtility/1.0; ' . home_url(),
+	);
 
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You do not have sufficient permissions to perform this action.', 'degree-search-utility' ) );
-	}
+	$attempt = 0;
 
-	if ( ! isset( $_POST['dsu_update_program_urls_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['dsu_update_program_urls_nonce'] ) ), 'dsu_update_program_urls_action' ) ) {
-		wp_die( esc_html__( 'Security check failed.', 'degree-search-utility' ) );
-	}
+	do {
+		$response = wp_remote_head( $url, $args );
 
-	// Sanitize numeric or "online" choice from form.
-	$url_category = isset( $_POST['url_category'] ) ?
-		( is_numeric( $_POST['url_category'] ) ?
-			intval( $_POST['url_category'] ) :
-			sanitize_title(
-				wp_unslash( $_POST['url_category'] )
-			)
-		) : 0;
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
 
-	if ( ! $url_category ) {
-		echo '<div class="error"><p>Please select a valid college.</p></div>';
-		return;
-	}
+		$code = (int) wp_remote_retrieve_response_code( $response );
 
-	// Get online concentrations once for reuse.
+		if ( 429 !== $code ) {
+			return $code;
+		}
+
+		$retry_after = wp_remote_retrieve_header( $response, 'retry-after' );
+		$wait        = is_numeric( $retry_after ) ? (int) $retry_after : ( 2 ** $attempt );
+		sleep( min( $wait, 30 ) );
+
+		++$attempt;
+
+	} while ( $attempt < $max_retries );
+
+	return 429;
+}
+
+/**
+ * Build the list of program URL-check jobs for a given category.
+ *
+ * @param int|string $url_category College term ID or 'online'.
+ * @return array|WP_Error Array with 'group_name' and 'jobs', or WP_Error.
+ */
+function dsu_build_program_url_jobs( $url_category ) {
+
 	$online_concentrations = get_terms(
 		array(
 			'taxonomy'   => 'concentration',
@@ -255,7 +349,7 @@ function dsu_handle_update_program_urls() {
 			'meta_query' => array(
 				array(
 					'key'     => 'online',
-					'value'   => '1', // ACF stores true as "1".
+					'value'   => '1',
 					'compare' => '=',
 				),
 			),
@@ -263,21 +357,17 @@ function dsu_handle_update_program_urls() {
 	);
 
 	if ( is_wp_error( $online_concentrations ) ) {
-		echo '<div class="error"><p>Error retrieving online concentrations.</p></div>';
-		return;
+		return new WP_Error( 'dsu_terms', 'Error retrieving online concentrations.' );
 	}
 
 	if ( 'online' === $url_category ) {
-		// Hard code base URL and group name for online programs.
 		$base_url   = 'https://volsonline.utk.edu';
 		$group_name = 'Vols Online';
 
 		if ( empty( $online_concentrations ) ) {
-			echo '<div class="error"><p>No online programs found.</p></div>';
-			return;
+			return new WP_Error( 'dsu_no_online', 'No online programs found.' );
 		}
 
-		// Get all programs linked to online concentrations.
 		$programs = get_posts(
 			array(
 				'post_type'      => 'program',
@@ -291,23 +381,17 @@ function dsu_handle_update_program_urls() {
 				),
 			)
 		);
-
 	} else {
 		$college_id = $url_category;
-
-		// Get the college homepage URL from ACF.
-		$base_url = get_field( 'college-url', 'college_' . $college_id );
+		$base_url   = get_field( 'college-url', 'college_' . $college_id );
 
 		if ( empty( $base_url ) ) {
-			echo '<div class="error"><p>Selected college does not have a homepage URL set.</p></div>';
-			return;
+			return new WP_Error( 'dsu_no_url', 'Selected college does not have a homepage URL set.' );
 		}
 
-		// Get college name.
 		$college_term = get_term( $college_id, 'college' );
 		$group_name   = ( $college_term && ! is_wp_error( $college_term ) ) ? $college_term->name : 'Unknown College';
 
-		// Build tax query to include college but exclude online concentrations.
 		$tax_query = array(
 			array(
 				'taxonomy' => 'college',
@@ -325,7 +409,6 @@ function dsu_handle_update_program_urls() {
 			);
 		}
 
-		// Find all non-online program posts linked to this college.
 		$programs = get_posts(
 			array(
 				'post_type'      => 'program',
@@ -335,59 +418,19 @@ function dsu_handle_update_program_urls() {
 		);
 	}
 
-	if ( empty( $programs ) ) {
-		echo '<div class="updated"><p>No programs found for the selected college.</p></div>';
-		return;
-	}
-
-	// Create CSV report.
-	$upload_dir = wp_upload_dir();
-	$report_dir = trailingslashit( $upload_dir['basedir'] ) . 'degree-search-reports';
-
-	wp_mkdir_p( $report_dir );
-
-	$filename = sprintf(
-		'program-url-report-%s.csv',
-		current_time( 'Y-m-d-H-i-s' )
-	);
-
-	$report_path = trailingslashit( $report_dir ) . $filename;
-	$report_url  = trailingslashit( $upload_dir['baseurl'] ) . 'degree-search-reports/' . $filename;
-
-	$csv = fopen( $report_path, 'w' );
-
-	if ( $csv ) {
-		fputcsv(
-			$csv,
-			array(
-				'Program',
-				'Degree',
-				'URL',
-				'HTTP Code',
-				'Result',
-			),
-			',',
-			'"',
-			'\\'
-		);
-	}
-
-	$updated = 0;
-	$cleared = 0;
+	$jobs = array();
 
 	foreach ( $programs as $program ) {
-
 		$program_slug = sanitize_title( $program->post_title );
-
-		// Get degree terms.
 		$degree_terms = wp_get_post_terms( $program->ID, 'degree' );
+
 		if ( empty( $degree_terms ) || is_wp_error( $degree_terms ) ) {
 			continue;
 		}
 
 		foreach ( $degree_terms as $degree ) {
 			$degree_slug = $degree->slug;
-			$degree_type = get_field( 'degree_type', 'degree_' . $degree->term_id ); // ACF field.
+			$degree_type = get_field( 'degree_type', 'degree_' . $degree->term_id );
 
 			if ( empty( $degree_type ) ) {
 				continue;
@@ -395,9 +438,7 @@ function dsu_handle_update_program_urls() {
 
 			$safe_degree_type = sanitize_title( $degree_type );
 
-			// Format degree type to match expected URL structure.
 			if ( 'online' === $url_category ) {
-
 				$parent_path = 'program';
 
 				if ( str_contains( strtolower( $degree_type ), 'certificate' ) ) {
@@ -412,7 +453,6 @@ function dsu_handle_update_program_urls() {
 					continue;
 				}
 			} else {
-
 				$parent_path = 'academics';
 
 				if ( 'undergraduate' === $safe_degree_type ) {
@@ -428,54 +468,142 @@ function dsu_handle_update_program_urls() {
 				}
 			}
 
-			// Build the URL only adding the degree slug if the program is not a certificate.
-			// On Campus example: https://csw.utk.edu/academics/undergraduate-programs/social-work-bssw/.
-			// Online example:    https://volsonline.utk.edu/program/masters/mathematics-mmath.
 			$url = trailingslashit( $base_url ) . $parent_path . '/' . $degree_type_slug . '/' . $program_slug . ( stripos( $degree_type_slug, 'certificate' ) === false ? '-' . $degree_slug : '' ) . '/';
 
-			// Check response code.
-			$response = wp_remote_head( $url, array( 'timeout' => 5 ) );
-			if ( is_wp_error( $response ) ) {
+			$jobs[] = array(
+				'program_id' => $program->ID,
+				'program'    => $program->post_title,
+				'degree'     => $degree->name,
+				'url'        => $url,
+			);
+		}
+	}
 
-				$code   = 'ERROR';
-				$result = $response->get_error_message();
+	return array(
+		'group_name' => $group_name,
+		'jobs'       => $jobs,
+	);
+}
 
-				update_field( 'program-url', '', $program->ID );
-				++$cleared;
+/**
+ * AJAX: build the job list, prep the CSV, store batch state.
+ */
+function dsu_ajax_start_url_update() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
 
-			} else {
+	check_ajax_referer( 'dsu_update_program_urls_action', 'nonce' );
 
-				$code = wp_remote_retrieve_response_code( $response );
+	$url_category = isset( $_POST['url_category'] ) ?
+		( is_numeric( $_POST['url_category'] ) ?
+			intval( $_POST['url_category'] ) :
+			sanitize_title( wp_unslash( $_POST['url_category'] ) )
+		) : 0;
 
-				if ( 200 === $code ) {
+	if ( ! $url_category ) {
+		wp_send_json_error( array( 'message' => 'Please select a valid college.' ) );
+	}
 
-					update_field( 'program-url', esc_url_raw( $url ), $program->ID );
-					$result = 'Updated';
-					++$updated;
+	$data = dsu_build_program_url_jobs( $url_category );
 
-				} else {
+	if ( is_wp_error( $data ) ) {
+		wp_send_json_error( array( 'message' => $data->get_error_message() ) );
+	}
 
-					update_field( 'program-url', '', $program->ID );
-					$result = 'Cleared';
-					++$cleared;
-				}
-			}
+	if ( empty( $data['jobs'] ) ) {
+		wp_send_json_error( array( 'message' => 'No programs found for the selected college.' ) );
+	}
 
-			if ( $csv ) {
-				fputcsv(
-					$csv,
-					array(
-						$program->post_title,
-						$degree->name,
-						$url,
-						$code,
-						$result,
-					),
-					',',
-					'"',
-					'\\'
-				);
-			}
+	$upload_dir = wp_upload_dir();
+	$report_dir = trailingslashit( $upload_dir['basedir'] ) . 'degree-search-reports';
+	wp_mkdir_p( $report_dir );
+
+	$filename    = sprintf( 'program-url-report-%s.csv', current_time( 'Y-m-d-H-i-s' ) );
+	$report_path = trailingslashit( $report_dir ) . $filename;
+	$report_url  = trailingslashit( $upload_dir['baseurl'] ) . 'degree-search-reports/' . $filename;
+
+	$csv = fopen( $report_path, 'w' );
+	if ( $csv ) {
+		fputcsv( $csv, array( 'Program', 'Degree', 'URL', 'HTTP Code', 'Result' ), ',', '"', '\\' );
+		fclose( $csv );
+	}
+
+	$batch_id = 'dsu_url_batch_' . wp_generate_password( 12, false );
+	set_transient(
+		$batch_id,
+		array(
+			'jobs'        => $data['jobs'],
+			'group_name'  => $data['group_name'],
+			'report_path' => $report_path,
+			'report_url'  => $report_url,
+			'updated'     => 0,
+			'cleared'     => 0,
+		),
+		HOUR_IN_SECONDS
+	);
+
+	wp_send_json_success(
+		array(
+			'batch_id' => $batch_id,
+			'total'    => count( $data['jobs'] ),
+		)
+	);
+}
+add_action( 'wp_ajax_dsu_start_url_update', 'dsu_ajax_start_url_update' );
+
+/**
+ * AJAX: process URLs in batches.
+ */
+function dsu_ajax_process_url_batch() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => 'Insufficient permissions.' ), 403 );
+	}
+
+	check_ajax_referer( 'dsu_update_program_urls_action', 'nonce' );
+
+	$batch_id = isset( $_POST['batch_id'] ) ? sanitize_text_field( wp_unslash( $_POST['batch_id'] ) ) : '';
+	$offset   = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+	$size     = 10;
+
+	if ( 0 !== strpos( $batch_id, 'dsu_url_batch_' ) ) {
+		wp_send_json_error( array( 'message' => 'Invalid batch.' ) );
+	}
+
+	$state = get_transient( $batch_id );
+	if ( false === $state ) {
+		wp_send_json_error( array( 'message' => 'Batch expired. Please try again.' ) );
+	}
+
+	$total = count( $state['jobs'] );
+	$slice = array_slice( $state['jobs'], $offset, $size );
+
+	$csv = fopen( $state['report_path'], 'a' );
+
+	foreach ( $slice as $job ) {
+		usleep( 150000 ); // Pause between batches.
+
+		$code = dsu_check_url( $job['url'] );
+
+		if ( is_wp_error( $code ) ) {
+			$http_code = 'ERROR';
+			$result    = $code->get_error_message();
+			update_field( 'program-url', '', $job['program_id'] );
+			++$state['cleared'];
+		} elseif ( in_array( $code, array( 200, 301 ), true ) ) {
+			update_field( 'program-url', esc_url_raw( $job['url'] ), $job['program_id'] );
+			$http_code = $code;
+			$result    = 'Updated';
+			++$state['updated'];
+		} else {
+			update_field( 'program-url', '', $job['program_id'] );
+			$http_code = $code;
+			$result    = 'Cleared';
+			++$state['cleared'];
+		}
+
+		if ( $csv ) {
+			fputcsv( $csv, array( $job['program'], $job['degree'], $job['url'], $http_code, $result ), ',', '"', '\\' );
 		}
 	}
 
@@ -483,15 +611,28 @@ function dsu_handle_update_program_urls() {
 		fclose( $csv );
 	}
 
-	printf(
-		'<div class="updated"><p>%1$s URLs checked &nbsp;-&nbsp; Updated: <strong>%2$d</strong> &nbsp;<strong>|</strong>&nbsp; Cleared: <strong>%3$d</strong><br><br><a class="button button-secondary" href="%4$s" download>Download URL Report (CSV)</a></p></div>',
-		esc_html( $group_name ),
-		intval( $updated ),
-		intval( $cleared ),
-		esc_url( $report_url )
+	$processed = min( $offset + $size, $total );
+	$done      = $processed >= $total;
+
+	if ( $done ) {
+		delete_transient( $batch_id );
+	} else {
+		set_transient( $batch_id, $state, HOUR_IN_SECONDS );
+	}
+
+	wp_send_json_success(
+		array(
+			'processed'  => $processed,
+			'total'      => $total,
+			'done'       => $done,
+			'updated'    => $state['updated'],
+			'cleared'    => $state['cleared'],
+			'group_name' => $state['group_name'],
+			'report_url' => $state['report_url'],
+		)
 	);
 }
-add_action( 'admin_init', 'dsu_handle_update_program_urls' );
+add_action( 'wp_ajax_dsu_process_url_batch', 'dsu_ajax_process_url_batch' );
 
 /**
  * Delete all program posts and associated taxonomy terms.
