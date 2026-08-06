@@ -570,6 +570,10 @@ export default function View() {
 							/>
 						</div>
 					</div>
+					<p className="check-back-copy">
+						Don't see the link you're looking for? New program and
+						degree pages are added regularly. Check back soon!
+					</p>
 					<div
 						ref={ stickyEl }
 						className={ `programs-filters-sticky${
