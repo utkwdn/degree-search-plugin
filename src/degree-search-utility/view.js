@@ -735,26 +735,47 @@ export default function View() {
 															key={ index }
 															className="program-entry-text program-entry-text--bold"
 														>
-															{ /* { degree.name } */ }
-
-															{ /* Only link program if URL is set and not an empty string */ }
-															{ degree.url &&
-															degree.url.trim() !==
-																'' ? (
-																<a
-																	href={
-																		degree.url
-																	}
-																	target="_blank"
-																	rel="noopener noreferrer"
-																>
-																	{
-																		degree.name
-																	}
-																</a>
-															) : (
-																degree.name
-															) }
+															{ /* Link if program URL is not blank */ }
+															{ ( () => {
+																const hasUrl =
+																	degree.url?.trim();
+																const isOnline =
+																	program
+																		.concentrations
+																		.length >
+																		0 &&
+																	program
+																		.concentrations[ 0 ]
+																		.online;
+																if (
+																	! hasUrl
+																) {
+																	return degree.name;
+																}
+																return (
+																	<a
+																		href={
+																			degree.url
+																		}
+																		target="_blank"
+																		rel="noopener noreferrer"
+																		// aria-label format: "Get more information about the (online) {degree name} in {major name}"
+																		aria-label={ `Get more information about the ${
+																			isOnline
+																				? 'online '
+																				: ''
+																		}${
+																			degree.name
+																		} in ${
+																			program.major
+																		}` }
+																	>
+																		{
+																			degree.name
+																		}
+																	</a>
+																);
+															} )() }
 														</li>
 													)
 												) }
